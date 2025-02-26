@@ -1,0 +1,6 @@
+@MatrixCollege_HostAddress = http://localhost:5125
+
+GET {{MatrixCollege_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
