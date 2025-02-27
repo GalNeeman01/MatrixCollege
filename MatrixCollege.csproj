@@ -10,7 +10,6 @@
   <ItemGroup>
     <Folder Include="1-Assets\" />
     <Folder Include="5-Controllers\" />
-    <Folder Include="3-Models\" />
     <Folder Include="4-Services\" />
     <Folder Include="6-Middleware\" />
   </ItemGroup>
