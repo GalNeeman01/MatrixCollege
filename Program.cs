@@ -11,6 +11,7 @@ public class Program
         builder.Services.AddScoped<MatrixCollegeContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
+        builder.Services.AddScoped<EnrollmentService>();
 
         builder.Services.AddControllers();
 
