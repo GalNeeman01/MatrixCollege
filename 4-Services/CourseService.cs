@@ -1,4 +1,6 @@
-﻿namespace Matrix;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Matrix;
 
 public class CourseService : IDisposable
 {
@@ -18,6 +20,16 @@ public class CourseService : IDisposable
         _db.SaveChanges();
 
         return course;
+    }
+
+    public List<Course> GetAllCourses()
+    {
+        return _db.Courses.AsNoTracking().ToList();
+    }
+
+    public Course? GetCourseById(Guid courseId)
+    {
+        return _db.Courses.AsNoTracking().SingleOrDefault(course => course.Id == courseId);
     }
 
     public void Dispose()

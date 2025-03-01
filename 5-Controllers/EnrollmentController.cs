@@ -23,4 +23,21 @@ public class EnrollmentController : ControllerBase
 
         return Created("/", dbEnrollment);
     }
+
+    [HttpGet("/api/enrollments")]
+    public IActionResult GetAllEnrollments()
+    {
+        return Ok(_enrollmentService.GetAllEnrollments());
+    }
+
+    [HttpGet("/api/enrollments/{enrollmentId}")]
+    public IActionResult GetEnrollmentById([FromRoute] Guid enrollmentId)
+    {
+        Enrollment? enrollment = _enrollmentService.GetEnrollmentById(enrollmentId);
+
+        if (enrollment == null)
+            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
+
+        return Ok(enrollment);
+    }
 }

@@ -37,6 +37,16 @@ public class EnrollmentService : IDisposable
         return dbEnrollment;
     }
 
+    public List<Enrollment> GetAllEnrollments()
+    {
+        return _db.Enrollments.AsNoTracking().ToList();
+    }
+
+    public Enrollment? GetEnrollmentById(Guid enrollmentId)
+    {
+        return _db.Enrollments.AsNoTracking().SingleOrDefault(enr => enr.Id == enrollmentId);
+    }
+
     public void Dispose()
     {
         _db.Dispose();

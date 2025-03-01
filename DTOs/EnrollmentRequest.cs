@@ -4,9 +4,9 @@ namespace Matrix;
 
 public class EnrollmentRequest
 {
-    [Required]
+    [ValidGuid(ErrorMessage = "UserId is a required field.")]
     public Guid UserId { get; set; }
 
-    [Required]
+    [ValidGuid(ErrorMessage = "CourseId is a required field.")]
     public Guid CourseId { get; set; }
 }

@@ -19,6 +19,25 @@ public class CourseController : ControllerBase, IDisposable
         return Created("/", _courseService.CreateCourse(course));
     }
 
+    [HttpGet("/api/courses")]
+    public IActionResult GetAllCourses()
+    {
+        List<Course> courses = _courseService.GetAllCourses();
+
+        return Ok(courses);
+    }
+
+    [HttpGet("/api/courses/{courseId}")]
+    public IActionResult GetCourseById([FromRoute] Guid courseId)
+    {
+        Course? course = _courseService.GetCourseById(courseId);
+
+        if (course == null)
+            return NotFound(new ResourceNotFoundError(courseId.ToString()));
+
+        return Ok(course);
+    }
+
     public void Dispose()
     {
         _courseService.Dispose();
