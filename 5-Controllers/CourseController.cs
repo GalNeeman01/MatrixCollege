@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
 
@@ -7,15 +9,25 @@ namespace Matrix;
 public class CourseController : ControllerBase, IDisposable
 {
     private CourseService _courseService;
+    private IValidator<Course> _validator;
 
-    public CourseController(CourseService courseService)
+    public CourseController(CourseService courseService, IValidator<Course> validator)
     {
         _courseService = courseService;
+        _validator = validator;
     }
 
     [HttpPost("/api/courses")]
     public IActionResult CreateCourse([FromBody] Course course)
     {
+        // Fluent validation
+        ValidationResult validationResult = _validator.Validate(course);
+
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+        }
+
         return Created("/", _courseService.CreateCourse(course));
     }
 

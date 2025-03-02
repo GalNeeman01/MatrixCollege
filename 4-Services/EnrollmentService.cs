@@ -12,7 +12,7 @@ public class EnrollmentService : IDisposable
     }
 
     // Check if both UserId and CourseId actually exist
-    public bool IsEnrollmentValid(EnrollmentRequest enrollment)
+    public bool IsEnrollmentValid(Enrollment enrollment)
     {
         // Fail if course doesn't exist
         if (!_db.Courses.AsNoTracking().Any(course => course.Id == enrollment.CourseId))
@@ -25,7 +25,7 @@ public class EnrollmentService : IDisposable
         return true;
     }
 
-    public Enrollment Enroll(EnrollmentRequest enrollment)
+    public Enrollment Enroll(Enrollment enrollment)
     {
         DateTime now = DateTime.Now; // Store current time
         Enrollment dbEnrollment = new Enrollment { UserId = enrollment.UserId, CourseId = enrollment.CourseId, EnrolledAt = now }; // Create enrollment

@@ -9,6 +9,7 @@ public class UserService : IDisposable
     public UserService (MatrixCollegeContext matrixCollegeContext)
     {
         _db = matrixCollegeContext;
+        
     }
 
     public User Register(User user)
@@ -40,9 +41,14 @@ public class UserService : IDisposable
         return dbUser;
     }
 
+    public bool IsUserExists(Guid id)
+    {
+        return _db.Users.AsNoTracking().Any(user => user.Id == id);
+    }
+
     public bool IsEmailUnique (string email)
     {
-        return _db.Users.AsNoTracking().Any(user => user.Email == email.ToLower());
+        return !_db.Users.AsNoTracking().Any(user => user.Email == email.ToLower());
     }
 
     // Dispose of unused resources

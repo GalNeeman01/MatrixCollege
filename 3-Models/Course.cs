@@ -11,17 +11,16 @@ public class Course
     public Guid Id { get; set; }
 
     [Required]
-    [MinLength(2, ErrorMessage="Title must be at least 2 characters in length.")]
-    [MaxLength(100, ErrorMessage="Title cannot exceed 100 characters in length.")]
+    [MinLength(2)]
+    [MaxLength(100)]
     public string Title { get; set; } = null!;
 
     [Required]
-    [MinLength(0)]
-    [MaxLength(3000, ErrorMessage ="Description cannot exceed 3000 characters in length.")]
+    [MaxLength(3000)]
     public string Description { get; set; } = null!;
 
     [Required]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } // Auto generated
 
     [InverseProperty("Course")]
     [JsonIgnore]
