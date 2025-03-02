@@ -1,3 +1,6 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Matrix;
 
 public class Program
@@ -14,6 +17,14 @@ public class Program
         builder.Services.AddScoped<EnrollmentService>();
         builder.Services.AddScoped<LessonService>();
         builder.Services.AddScoped<ProgressService>();
+
+        builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.SuppressModelStateInvalidFilter = true;
+        });
+
 
         builder.Services.AddControllers();
 

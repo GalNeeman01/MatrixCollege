@@ -11,7 +11,7 @@ public class Credentials
     public string Email { get; set; } = null!;
 
     [Required]
-    [StrongPassword(ErrorMessage = "Password must have at least: 1 digit, 1 characters, 1 non-alphanumeric character, and be at least 8 characters long.")]
+    //[StrongPassword(ErrorMessage = "Password must have at least: 1 digit, 1 characters, 1 non-alphanumeric character, and be at least 8 characters long.")]
     [MaxLength(800, ErrorMessage = "Password cannot exceed 800 characters in length.")]
     public string Password { get; set; } = null!;
 }
