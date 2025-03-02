@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MatrixCollege")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+301e8b76039be4b880e12b51c543762789f4c2ba")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b74009869f31d9e5d75627bc9ee4af83c7cd7a2")]
 [assembly: System.Reflection.AssemblyProductAttribute("MatrixCollege")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MatrixCollege")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -11,7 +11,7 @@ public class Course
     public Guid Id { get; set; }
 
     [Required]
-    [MinLength(5, ErrorMessage="Title must be at least 5 characters in length.")]
+    [MinLength(2, ErrorMessage="Title must be at least 2 characters in length.")]
     [MaxLength(100, ErrorMessage="Title cannot exceed 100 characters in length.")]
     public string Title { get; set; } = null!;
 

@@ -10,11 +10,11 @@ public class Enrollment
     [Key]
     public Guid Id { get; set; }
 
-    [Required]
+    [ValidGuid(ErrorMessage = "UserId is a required field.")]
     [ForeignKey("Users")]
     public Guid UserId { get; set; } // Foreign key to Users
 
-    [Required]
+    [ValidGuid(ErrorMessage = "CourseId is a required field.")]
     [ForeignKey("Courses")]
     public Guid CourseId { get; set; } // Foreign key to Courses
 

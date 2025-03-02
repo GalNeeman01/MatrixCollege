@@ -169,3 +169,4 @@ C:\johnbryce\Final Project\MatrixCollege\bin\Debug\net8.0\runtimes\browser\lib\n
 C:\johnbryce\Final Project\MatrixCollege\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\johnbryce\Final Project\MatrixCollege\obj\Debug\net8.0\MatrixCollege.csproj.AssemblyReference.cache
 C:\johnbryce\Final Project\MatrixCollege\obj\Debug\net8.0\MatrixCo.CF9A8C9B.Up2Date
+C:\johnbryce\Final Project\MatrixCollege\obj\Debug\net8.0\MatrixCollege.sourcelink.json
