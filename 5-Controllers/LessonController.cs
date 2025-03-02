@@ -27,9 +27,7 @@ public class LessonController : ControllerBase, IDisposable
         ValidationResult validationResult = _validator.Validate(lesson);
 
         if (!validationResult.IsValid)
-        {
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
-        }
 
         Lesson dbLesson = _lessonService.AddLesson(lesson);
 

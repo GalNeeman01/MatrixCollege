@@ -16,6 +16,19 @@ public class ProgressService : IDisposable
         return _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToList();
     }
 
+    public Progress AddProgress(Progress progress)
+    {
+        DateTime now = DateTime.Now;
+        progress.WatchedAt = now;
+
+        _db.Progresses.Add(progress);
+
+        _db.SaveChanges();
+
+        return progress;
+
+    }
+
     public void Dispose()
     {
         _db.Dispose();

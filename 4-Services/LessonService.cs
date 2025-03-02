@@ -21,6 +21,11 @@ public class LessonService : IDisposable
         return _db.Lessons.AsNoTracking().SingleOrDefault(lesson => lesson.Id == id);
     }
 
+    public bool IsLessonExists(Guid lessonId)
+    {
+        return _db.Lessons.AsNoTracking().Any(lesson => lesson.Id == lessonId);
+    }
+
     public Lesson AddLesson(Lesson lesson)
     {
         _db.Lessons.Add(lesson);
