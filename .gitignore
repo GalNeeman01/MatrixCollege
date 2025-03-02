@@ -1,5 +1,5 @@
 Dependencies/
 .vs/
 bin/
-obj
+obj/
 migrations
