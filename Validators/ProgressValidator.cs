@@ -2,7 +2,7 @@
 
 namespace Matrix;
 
-public class ProgressValidator : AbstractValidator<Progress>
+public class ProgressValidator : AbstractValidator<Progress>, IDisposable
 {
     // DI
     private LessonService _lessonService;
@@ -17,8 +17,10 @@ public class ProgressValidator : AbstractValidator<Progress>
             .Must(UserExists).WithMessage("No user was found for the provided UserId.");
 
         RuleFor(progress => progress.LessonId).NotEmpty().WithMessage("CourseId is a required field.")
-            .Must(LessonExists).WithMessage("No lesson was found for the provided CourseId");
+            .Must(LessonExists).WithMessage("No lesson was found for the provided LessonId");
     }
+
+    // Custom validations
 
     private bool LessonExists(Guid id)
     {

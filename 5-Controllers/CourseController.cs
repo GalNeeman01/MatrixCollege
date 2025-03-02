@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
 
-[Route("api/[controller]")]
 [ApiController]
 public class CourseController : ControllerBase, IDisposable
 {

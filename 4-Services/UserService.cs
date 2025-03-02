@@ -51,6 +51,45 @@ public class UserService : IDisposable
         return !_db.Users.AsNoTracking().Any(user => user.Email == email.ToLower());
     }
 
+    public List<Progress> GetProgress(Guid userId)
+    {
+        return _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToList();
+    }
+
+    public Progress AddProgress(Progress progress)
+    {
+        DateTime now = DateTime.Now;
+        progress.WatchedAt = now;
+
+        _db.Progresses.Add(progress);
+
+        _db.SaveChanges();
+
+        return progress;
+    }
+
+    public Enrollment Enroll(Enrollment enrollment)
+    {
+        DateTime now = DateTime.Now; // Store current time
+        Enrollment dbEnrollment = new Enrollment { UserId = enrollment.UserId, CourseId = enrollment.CourseId, EnrolledAt = now }; // Create enrollment
+
+        _db.Enrollments.Add(dbEnrollment);
+
+        _db.SaveChanges();
+
+        return dbEnrollment;
+    }
+
+    public Enrollment? GetEnrollmentById(Guid enrollmentId)
+    {
+        return _db.Enrollments.AsNoTracking().SingleOrDefault(enr => enr.Id == enrollmentId);
+    }
+
+    public Enrollment? GetEnrollmentByUserId(Guid userId)
+    {
+        return _db.Enrollments.AsNoTracking().SingleOrDefault(enr => enr.UserId == userId);
+    }
+
     // Dispose of unused resources
     public void Dispose()
     {

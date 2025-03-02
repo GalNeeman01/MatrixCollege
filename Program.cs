@@ -16,9 +16,6 @@ public class Program
         builder.Services.AddScoped<MatrixCollegeContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
-        builder.Services.AddScoped<EnrollmentService>();
-        builder.Services.AddScoped<CourseService>();
-        builder.Services.AddScoped<ProgressService>();
         builder.Services.AddScoped<LessonService>();
 
         // Add Fluent DI objects
@@ -33,7 +30,6 @@ public class Program
         {
             options.SuppressModelStateInvalidFilter = true;
         });
-
 
         builder.Services.AddControllers();
 

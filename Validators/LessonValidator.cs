@@ -24,6 +24,8 @@ public class LessonValidator : AbstractValidator<Lesson>, IDisposable
             .Must(ValidUrl).WithMessage("VideoUrl must be a valid Url link.");
     }
 
+    // Custom validations
+
     private bool ValidUrl(string url)
     {
         if (url == null)

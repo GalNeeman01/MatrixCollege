@@ -20,6 +20,7 @@ public class EnrollmentValidator : AbstractValidator<Enrollment>, IDisposable
             .Must(CourseExists).WithMessage("No course was found for the provided CourseId");
     }
 
+    // Custom validations
     private bool CourseExists(Guid id)
     {
         return _courseService.IsCourseExists(id);

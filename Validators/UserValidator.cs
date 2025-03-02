@@ -30,6 +30,8 @@ public class UserValidator : AbstractValidator<User>, IDisposable
             .Must(StrongPassword).WithMessage("Password must have 1 uppercase character, 1 digit and 1 non-alphanumeric character, and be at least 8 characters long.");
     }
 
+    // Custom validations
+
     // Check if email is unique
     private bool UniqueEmail(string email)
     {
