@@ -9,7 +9,7 @@ namespace Matrix;
 public class UserController : ControllerBase, IDisposable
 {
     private UserService _userService;
-    public IValidator<User> _validator;
+    private IValidator<User> _validator;
 
     public UserController(UserService userService, IValidator<User> validator)
     {
@@ -20,6 +20,7 @@ public class UserController : ControllerBase, IDisposable
     [HttpPost("/api/register")]
     public IActionResult Register([FromBody] User user)
     {
+        // Fluent validation
         ValidationResult validationResult = _validator.Validate(user);
 
         if (!validationResult.IsValid)

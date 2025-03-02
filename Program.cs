@@ -9,8 +9,10 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Setup appconfig
         AppConfig.Configure();
 
+        // Add DI objects
         builder.Services.AddScoped<MatrixCollegeContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
@@ -18,8 +20,11 @@ public class Program
         builder.Services.AddScoped<LessonService>();
         builder.Services.AddScoped<ProgressService>();
 
+        // Add Fluent DI objects
         builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<CourseValidator>();
 
+        // Ignore EF ModelState input validation (To allow Fluent to work)
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
             options.SuppressModelStateInvalidFilter = true;

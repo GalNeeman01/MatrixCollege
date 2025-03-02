@@ -11,7 +11,7 @@ public class UserValidator : AbstractValidator<User>, IDisposable
     public UserValidator(UserService userService)
     {
         _userService = userService;
-
+        
         // required, min - 8, max - 50
         RuleFor(user => user.Name).NotNull().WithMessage("Name is a required field.")
             .MinimumLength(8).WithMessage("Name must be at least 8 characters long.")
