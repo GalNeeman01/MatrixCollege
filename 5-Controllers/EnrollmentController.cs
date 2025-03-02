@@ -1,25 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
 
 [Route("api/[controller]")]
 [ApiController]
-public class EnrollmentController : ControllerBase
+public class EnrollmentController : ControllerBase, IDisposable
 {
+    // DI
     private EnrollmentService _enrollmentService;
+    private EnrollmentValidator _validator;
 
-    public EnrollmentController(EnrollmentService enrollmentService)
+    public EnrollmentController(EnrollmentService enrollmentService, EnrollmentValidator validatior)
     {
         _enrollmentService = enrollmentService;
+        _validator = validatior;
     }
 
     [HttpPost("/api/enrollments")]
-    public IActionResult AddEnrollment([FromBody] EnrollmentRequest enrollment)
+    public IActionResult AddEnrollment([FromBody] Enrollment enrollment)
     {
-        Enrollment dbEnrollment = _enrollmentService.Enroll(enrollment);
+        // In case of invalid Guid from request which would cause a crash
+        if (enrollment == null)
+            return BadRequest(new RequestDataError());
 
-        if (!_enrollmentService.IsEnrollmentValid(enrollment))
-            return BadRequest(new ValidationError("Incorrect UserId or CourseId"));
+        ValidationResult validationResult = _validator.Validate(enrollment);
+
+        if (!validationResult.IsValid)
+            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+
+
+        Enrollment dbEnrollment = _enrollmentService.Enroll(enrollment);
 
         return Created("/", dbEnrollment);
     }
@@ -40,4 +51,10 @@ public class EnrollmentController : ControllerBase
 
         return Ok(enrollment);
     }
+
+    public void Dispose()
+    {
+        _enrollmentService.Dispose();
+    }
+
 }

@@ -25,6 +25,7 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<CourseValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<LessonValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentValidator>();
 
         // Ignore EF ModelState input validation (To allow Fluent to work)
         builder.Services.Configure<ApiBehaviorOptions>(options =>

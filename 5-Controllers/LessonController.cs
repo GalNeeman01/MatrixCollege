@@ -16,7 +16,7 @@ public class LessonController : ControllerBase, IDisposable
         _lessonService = lessonService;
         _validator = validator;
     }
-
+    
     [HttpPost("/api/lessons")]
     public IActionResult AddLesson([FromBody] Lesson lesson)
     {

@@ -35,7 +35,7 @@ public class CourseService : IDisposable
     // Return whether a course exists in the DB
     public bool IsCourseExists(Guid courseId)
     {
-        return _db.Courses.Any(course => course.Id == courseId);
+        return _db.Courses.AsNoTracking().Any(course => course.Id == courseId);
     }
 
     public void Dispose()

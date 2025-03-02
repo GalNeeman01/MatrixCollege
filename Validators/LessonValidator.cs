@@ -8,9 +8,9 @@ public class LessonValidator : AbstractValidator<Lesson>, IDisposable
     // DI
     private CourseService _courseService;
 
-    public LessonValidator(CourseService lessonService)
+    public LessonValidator(CourseService courseService)
     {
-        _courseService = lessonService;
+        _courseService = courseService;
 
         // Not null and exists in DB
         RuleFor(lesson => lesson.CourseId).NotEmpty().WithMessage("The CourseId field is required.")
