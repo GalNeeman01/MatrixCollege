@@ -1,7 +1,4 @@
 Optional:
-* Add a modelview extension to display model view errors more nicely.
 
 Must:
 * Add JWT authentication (change UserController and UserService to implement it too)
-* Change to Fluent Validations
-* Move progress controller routes and enrollment controller routes to UserController
