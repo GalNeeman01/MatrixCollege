@@ -19,5 +19,10 @@ public class ResourceNotFoundError : BaseError
 
 public class ValidationError : BaseError
 {
-    public ValidationError(string message) : base (message) { }
+    public ValidationError(string message) : base(message) { }
+}
+
+public class RequestDataError : BaseError
+{
+    public RequestDataError() : base("The request data is in invalid.") { }
 }

@@ -17,12 +17,14 @@ public class Program
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
         builder.Services.AddScoped<EnrollmentService>();
-        builder.Services.AddScoped<LessonService>();
+        builder.Services.AddScoped<CourseService>();
         builder.Services.AddScoped<ProgressService>();
+        builder.Services.AddScoped<LessonService>();
 
         // Add Fluent DI objects
         builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<CourseValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<LessonValidator>();
 
         // Ignore EF ModelState input validation (To allow Fluent to work)
         builder.Services.Configure<ApiBehaviorOptions>(options =>
