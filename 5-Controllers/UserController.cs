@@ -12,18 +12,21 @@ public class UserController : ControllerBase, IDisposable
     private IValidator<User> _userValidator;
     private IValidator<Progress> _progressValidator;
     private IValidator<Enrollment> _enrollmentValidator;
+    private IValidator<Credentials> _credentialsValidator;
 
     // Constructor
     public UserController(
         UserService userService, 
         IValidator<User> userValidator, 
         IValidator<Progress> progressValidator, 
-        IValidator<Enrollment> enrollmentValidator)
+        IValidator<Enrollment> enrollmentValidator,
+        IValidator<Credentials> credentialsValidator)
     {
         _userService = userService;
         _userValidator = userValidator;
         _progressValidator = progressValidator;
         _enrollmentValidator = enrollmentValidator;
+        _credentialsValidator = credentialsValidator;
     }
 
     // Routes
@@ -45,6 +48,13 @@ public class UserController : ControllerBase, IDisposable
     [HttpPost("/api/login")]
     public IActionResult Login([FromBody] Credentials credentials)
     {
+        // Fluent validation
+        ValidationResult validationResult = _credentialsValidator.Validate(credentials);
+
+        if (!validationResult.IsValid)
+            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+
+
         User? dbUser = _userService.Login(credentials);
 
         if (dbUser == null)

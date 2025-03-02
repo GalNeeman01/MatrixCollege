@@ -21,7 +21,7 @@ public class UserValidator : AbstractValidator<User>, IDisposable
         RuleFor(user => user.Email).NotNull().WithMessage("Email is a required field.")
             .MinimumLength(10).WithMessage("Email must be at least 10 characters long.")
             .MaximumLength(320).WithMessage("Email cannot exceed 320 characters in length.")
-            .Must(EmailFormat).WithMessage("Email is in incorrect format.")
+            .Must(GlobalValidations.EmailFormat).WithMessage("Email is in incorrect format.")
             .Must(UniqueEmail).WithMessage("Email is already taken.");
 
         // required, strong password
@@ -41,15 +41,6 @@ public class UserValidator : AbstractValidator<User>, IDisposable
         bool b = _userService.IsEmailUnique(email);
 
         return _userService.IsEmailUnique(email);
-    }
-
-    // Check for correct email format (RegEx)
-    private bool EmailFormat(string email)
-    {
-        if (email == null)
-            return false;
-
-        return Regex.Match(email, "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").Success;
     }
 
     // Check for strong password.
