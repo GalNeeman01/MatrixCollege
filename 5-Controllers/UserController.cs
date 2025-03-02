@@ -109,7 +109,10 @@ public class UserController : ControllerBase, IDisposable
     [HttpGet("/api/user-enrollments/{userId}")]
     public IActionResult GetUserEnrollments([FromRoute] Guid userId)
     {
-        Enrollment? enrollment = _userService.GetEnrollmentById(userId);
+        if (!_userService.IsUserExists(userId))
+            return NotFound(new ResourceNotFoundError(userId.ToString()));
+
+        List<Enrollment> enrollment = _userService.GetEnrollmentsByUserId(userId);
 
         if (enrollment == null)
             return NotFound(new ResourceNotFoundError(userId.ToString()));

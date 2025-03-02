@@ -85,9 +85,9 @@ public class UserService : IDisposable
         return _db.Enrollments.AsNoTracking().SingleOrDefault(enr => enr.Id == enrollmentId);
     }
 
-    public Enrollment? GetEnrollmentByUserId(Guid userId)
+    public List<Enrollment> GetEnrollmentsByUserId(Guid userId)
     {
-        return _db.Enrollments.AsNoTracking().SingleOrDefault(enr => enr.UserId == userId);
+        return _db.Enrollments.AsNoTracking().Where(enr => enr.UserId == userId).ToList();
     }
 
     // Dispose of unused resources
