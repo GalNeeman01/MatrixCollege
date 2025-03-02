@@ -3,3 +3,5 @@ Optional:
 
 Must:
 * Add JWT authentication (change UserController and UserService to implement it too)
+* Change to Fluent Validations
+* Move progress controller routes and enrollment controller routes to UserController
