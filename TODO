@@ -1,4 +1,7 @@
 Optional:
+* Add more specific logging to serilog
+* Save logs when creating new ones
+* Add roles (professor, student, admin)
 
 Must:
-* Add JWT authentication (change UserController and UserService to implement it too)
+* Add catch-all middleware
