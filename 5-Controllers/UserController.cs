@@ -9,6 +9,8 @@ public class UserController : ControllerBase, IDisposable
 {
     // DI
     private UserService _userService;
+    private EnrollmentService _enrollmentService;
+
     private IValidator<User> _userValidator;
     private IValidator<Progress> _progressValidator;
     private IValidator<Enrollment> _enrollmentValidator;
@@ -17,6 +19,7 @@ public class UserController : ControllerBase, IDisposable
     // Constructor
     public UserController(
         UserService userService, 
+        EnrollmentService enrollmentService,
         IValidator<User> userValidator, 
         IValidator<Progress> progressValidator, 
         IValidator<Enrollment> enrollmentValidator,
@@ -27,6 +30,7 @@ public class UserController : ControllerBase, IDisposable
         _progressValidator = progressValidator;
         _enrollmentValidator = enrollmentValidator;
         _credentialsValidator = credentialsValidator;
+        _enrollmentService = enrollmentService;
     }
 
     // Routes
@@ -94,26 +98,16 @@ public class UserController : ControllerBase, IDisposable
         if (enrollment == null)
             return BadRequest(new RequestDataError());
 
+        // Fluent validation
         ValidationResult validationResult = _enrollmentValidator.Validate(enrollment);
 
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
 
-        Enrollment dbEnrollment = _userService.Enroll(enrollment);
+        Enrollment dbEnrollment = _enrollmentService.Enroll(enrollment);
 
         return Created("/", dbEnrollment);
-    }
-
-    [HttpGet("/api/enrollments/{enrollmentId}")]
-    public IActionResult GetEnrollmentById([FromRoute] Guid enrollmentId)
-    {
-        Enrollment? enrollment = _userService.GetEnrollmentById(enrollmentId);
-
-        if (enrollment == null)
-            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
-
-        return Ok(enrollment);
     }
 
     [HttpGet("/api/user-enrollments/{userId}")]
@@ -122,7 +116,7 @@ public class UserController : ControllerBase, IDisposable
         if (!_userService.IsUserExists(userId))
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
-        List<Enrollment> enrollment = _userService.GetEnrollmentsByUserId(userId);
+        List<Enrollment> enrollment = _enrollmentService.GetEnrollmentsByUserId(userId);
 
         if (enrollment == null)
             return NotFound(new ResourceNotFoundError(userId.ToString()));

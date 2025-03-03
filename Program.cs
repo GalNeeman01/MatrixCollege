@@ -17,6 +17,7 @@ public class Program
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
         builder.Services.AddScoped<LessonService>();
+        builder.Services.AddScoped<EnrollmentService>();
 
         // Add Fluent DI objects
         builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();

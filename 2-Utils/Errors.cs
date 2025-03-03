@@ -2,7 +2,7 @@
 
 namespace Matrix;
 
-public class BaseError
+public abstract class BaseError
 {
     public string Message { get; set; } = null!;
 
