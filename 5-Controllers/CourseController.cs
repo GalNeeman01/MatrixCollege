@@ -58,6 +58,18 @@ public class CourseController : ControllerBase, IDisposable
         return Ok(course);
     }
 
+    [HttpDelete("/api/courses/{courseId}")]
+    public IActionResult RemoveCourse([FromRoute] Guid courseId)
+    {
+        bool result = _courseService.RemoveCourse(courseId);
+
+        // If no lesson with this id exists
+        if (!result)
+            return NotFound(new ResourceNotFoundError(courseId.ToString()));
+
+        return NoContent();
+    }
+
     public void Dispose()
     {
         _courseService.Dispose();

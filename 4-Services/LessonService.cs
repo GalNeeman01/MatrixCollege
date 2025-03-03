@@ -51,6 +51,43 @@ public class LessonService : IDisposable
         return dto;
     }
 
+    public List<LessonDto> GetLessonsByCourseId (Guid courseId)
+    {
+        List<LessonDto> dtoLessons = new List<LessonDto>();
+
+        _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToList()
+            .ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
+
+        return dtoLessons;
+    }
+
+    public bool RemoveLesson(Guid lessonId)
+    {
+        Lesson? lesson = _db.Lessons.AsNoTracking().SingleOrDefault(lesson => lesson.Id == lessonId);
+
+        // If no such lesson exists
+        if (lesson == null) return false;
+
+        _db.Lessons.Remove(lesson);
+
+        _db.SaveChanges();
+
+        return true;
+    }
+
+    public LessonDto? UpdateLesson(Lesson lesson)
+    {
+        if (!IsLessonExists(lesson.Id)) return null;
+
+        _db.Lessons.Attach(lesson);
+        _db.Entry(lesson).State = EntityState.Modified;
+        _db.SaveChanges();
+
+        LessonDto dto = _mapper.Map<LessonDto>(lesson);
+
+        return dto;
+    }
+
     public void Dispose()
     {
         _db.Dispose();

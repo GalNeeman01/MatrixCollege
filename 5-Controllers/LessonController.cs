@@ -60,6 +60,49 @@ public class LessonController : ControllerBase, IDisposable
         return Ok(lesson);
     }
 
+    [HttpGet("/api/lessons-by-course/{courseId}")]
+    public IActionResult GetLessonsByCourseId([FromRoute] Guid courseId)
+    {
+        return Ok(_lessonService.GetLessonsByCourseId(courseId));
+    }
+
+    [HttpDelete("/api/lessons/{lessonId}")]
+    public IActionResult RemoveLesson([FromRoute] Guid lessonId)
+    {
+        bool result = _lessonService.RemoveLesson(lessonId);
+
+        // If no lesson with this id exists
+        if (!result)
+            return NotFound(new ResourceNotFoundError(lessonId.ToString()));
+
+        return NoContent();
+    }
+
+    [HttpPut("/api/lessons/{lessonId}")]
+    public IActionResult UpdateLesson([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
+    {
+        // Fluent validation on DTO:
+        // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
+        if (lessonDto == null)
+            return BadRequest(new RequestDataError());
+
+        ValidationResult validationResult = _validator.Validate(lessonDto);
+
+        if (!validationResult.IsValid)
+            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+
+        // Map to Lesson object
+        Lesson lesson = _mapper.Map<Lesson>(lessonDto);
+        lesson.Id = lessonId;
+
+        // Call to service
+        LessonDto? resultLessonDto = _lessonService.UpdateLesson(lesson);
+
+        if (resultLessonDto == null) return NotFound(new ResourceNotFoundError(lessonId.ToString()));
+
+        return Ok(resultLessonDto);
+    }
+
 
     public void Dispose()
     {

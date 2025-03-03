@@ -57,6 +57,20 @@ public class CourseService : IDisposable
         return _db.Courses.AsNoTracking().Any(course => course.Id == courseId);
     }
 
+    public bool RemoveCourse(Guid courseId)
+    {
+        Course? course = _db.Courses.AsNoTracking().SingleOrDefault(course => course.Id == courseId);
+
+        // If no such course exists
+        if (course == null) return false;
+
+        _db.Courses.Remove(course);
+
+        _db.SaveChanges();
+
+        return true;
+    }
+
     public void Dispose()
     {
         _db.Dispose();
