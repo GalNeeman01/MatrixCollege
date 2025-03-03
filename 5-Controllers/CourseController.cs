@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
@@ -19,6 +20,7 @@ public class CourseController : ControllerBase, IDisposable
         _mapper = mapper;
     }
 
+    [Authorize]
     [HttpPost("/api/courses")]
     public IActionResult CreateCourse([FromBody] CourseDto courseDto)
     {
@@ -58,6 +60,7 @@ public class CourseController : ControllerBase, IDisposable
         return Ok(course);
     }
 
+    [Authorize]
     [HttpDelete("/api/courses/{courseId}")]
     public IActionResult RemoveCourse([FromRoute] Guid courseId)
     {

@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -42,6 +43,8 @@ public class Program
         {
             options.SuppressModelStateInvalidFilter = true;
         });
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtHelper.SetBearerOptions);
 
         builder.Services.AddControllers();
 

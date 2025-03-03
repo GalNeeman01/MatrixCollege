@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
@@ -59,8 +60,8 @@ public class UserController : ControllerBase, IDisposable
         // Map to User object
         User user = _mapper.Map<User>(userDto);
 
-        UserResponseDto resultDto = _userService.Register(user);
-        return Created("/", resultDto);
+        string token = _userService.Register(user);
+        return Created("/", token);
     }
 
     [HttpPost("/api/login")]
@@ -73,15 +74,16 @@ public class UserController : ControllerBase, IDisposable
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
 
-        UserResponseDto? resultUserDto = _userService.Login(credentials);
+        string? token = _userService.Login(credentials);
 
-        if (resultUserDto == null)
+        if (token == null)
             return BadRequest(new ValidationError("Incorrect email or password."));
 
-        return Ok(resultUserDto);
+        return Ok(token);
     }
 
     // Progress routes
+    [Authorize]
     [HttpPost("/api/user-progress")]
     public IActionResult AddProgress([FromBody] ProgressDto progressDto)
     {
@@ -99,12 +101,14 @@ public class UserController : ControllerBase, IDisposable
         return Created("/", resultProgress);
     }
 
+    [Authorize]
     [HttpGet("/api/user-progress/{userId}")]
     public IActionResult GetUserProgress([FromRoute] Guid userId)
     {
         return Ok(_progressService.GetUserProgress(userId));
     }
 
+    [Authorize]
     // Enrollment routes
     [HttpPost("/api/user-enroll")]
     public IActionResult AddEnrollment([FromBody] EnrollmentDto enrollmentDto)
@@ -128,6 +132,7 @@ public class UserController : ControllerBase, IDisposable
         return Created("/", resultEnrollment);
     }
 
+    [Authorize]
     [HttpGet("/api/user-enrollments/{userId}")]
     public IActionResult GetUserEnrollments([FromRoute] Guid userId)
     {
@@ -142,6 +147,7 @@ public class UserController : ControllerBase, IDisposable
         return Ok(dtoEnrollments);
     }
 
+    [Authorize]
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]
     public IActionResult RemoveEnrollment([FromRoute] Guid enrollmentId)
     {

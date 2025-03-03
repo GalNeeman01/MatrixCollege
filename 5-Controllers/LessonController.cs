@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
@@ -18,7 +19,8 @@ public class LessonController : ControllerBase, IDisposable
         _validator = validator;
         _mapper = mapper;
     }
-    
+
+    [Authorize]
     [HttpPost("/api/lessons")]
     public IActionResult AddLesson([FromBody] LessonDto lessonDto)
     {
@@ -40,6 +42,7 @@ public class LessonController : ControllerBase, IDisposable
         return Created("/", dbLesson);
     }
 
+    [Authorize]
     [HttpGet("/api/lessons")]
     public IActionResult GetAllLessons()
     {
@@ -48,6 +51,7 @@ public class LessonController : ControllerBase, IDisposable
         return Ok(lessons);
     }
 
+    [Authorize]
     [HttpGet("/api/lessons/{lessonId}")]
     public IActionResult GetLessonById([FromRoute] Guid lessonId)
     {
@@ -60,12 +64,14 @@ public class LessonController : ControllerBase, IDisposable
         return Ok(lesson);
     }
 
+    [Authorize]
     [HttpGet("/api/lessons-by-course/{courseId}")]
     public IActionResult GetLessonsByCourseId([FromRoute] Guid courseId)
     {
         return Ok(_lessonService.GetLessonsByCourseId(courseId));
     }
 
+    [Authorize]
     [HttpDelete("/api/lessons/{lessonId}")]
     public IActionResult RemoveLesson([FromRoute] Guid lessonId)
     {
@@ -78,6 +84,7 @@ public class LessonController : ControllerBase, IDisposable
         return NoContent();
     }
 
+    [Authorize]
     [HttpPut("/api/lessons/{lessonId}")]
     public IActionResult UpdateLesson([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
     {
@@ -102,7 +109,6 @@ public class LessonController : ControllerBase, IDisposable
 
         return Ok(resultLessonDto);
     }
-
 
     public void Dispose()
     {

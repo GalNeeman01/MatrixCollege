@@ -15,7 +15,7 @@ public class UserService : IDisposable
         
     }
 
-    public UserResponseDto Register(User user)
+    public string Register(User user)
     {
         user.Email = user.Email.ToLower(); // Format email
         user.Password = Encryptor.GetHashed(user.Password); // Convert to hashed
@@ -27,10 +27,10 @@ public class UserService : IDisposable
         // Map to UserResponseDto
         UserResponseDto dto = _mapper.Map<UserResponseDto>(user);
 
-        return dto;
+        return JwtHelper.GetNewToken(dto);
     }
 
-    public UserResponseDto? Login(Credentials credentials)
+    public string? Login(Credentials credentials)
     {
         credentials.Email = credentials.Email.ToLower(); // Format email
         credentials.Password = Encryptor.GetHashed(credentials.Password); // Convert to hashed
@@ -43,7 +43,7 @@ public class UserService : IDisposable
         // Map to UserResponseDto
         UserResponseDto dto = _mapper.Map<UserResponseDto>(dbUser);
 
-        return dto;
+        return JwtHelper.GetNewToken(dto);
     }
 
     public bool IsUserExists(Guid id)
