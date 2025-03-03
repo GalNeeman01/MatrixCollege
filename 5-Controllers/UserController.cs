@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -9,14 +10,19 @@ namespace Matrix;
 public class UserController : ControllerBase, IDisposable
 {
     // DI
+        // Services
     private UserService _userService;
     private EnrollmentService _enrollmentService;
     private ProgressService _progressService;
 
+        // Validators
     private IValidator<User> _userValidator;
     private IValidator<Progress> _progressValidator;
-    private IValidator<Enrollment> _enrollmentValidator;
+    private IValidator<EnrollmentDto> _enrollmentValidator;
     private IValidator<Credentials> _credentialsValidator;
+
+    // Mappers
+    private IMapper _mapper;
 
     // Constructor
     public UserController(
@@ -25,8 +31,9 @@ public class UserController : ControllerBase, IDisposable
         ProgressService progressService,
         IValidator<User> userValidator, 
         IValidator<Progress> progressValidator, 
-        IValidator<Enrollment> enrollmentValidator,
-        IValidator<Credentials> credentialsValidator)
+        IValidator<EnrollmentDto> enrollmentValidator,
+        IValidator<Credentials> credentialsValidator,
+        IMapper mapper)
     {
         _userService = userService;
         _userValidator = userValidator;
@@ -35,6 +42,7 @@ public class UserController : ControllerBase, IDisposable
         _credentialsValidator = credentialsValidator;
         _enrollmentService = enrollmentService;
         _progressService = progressService;
+        _mapper = mapper;
     }
 
     // Routes
@@ -96,22 +104,25 @@ public class UserController : ControllerBase, IDisposable
 
     // Enrollment routes
     [HttpPost("/api/user-enroll")]
-    public IActionResult AddEnrollment([FromBody] Enrollment enrollment)
+    public IActionResult AddEnrollment([FromBody] EnrollmentDto enrollmentDto)
     {
         // In case of invalid Guid from request which would cause a crash
-        if (enrollment == null)
+        if (enrollmentDto == null)
             return BadRequest(new RequestDataError());
 
         // Fluent validation
-        ValidationResult validationResult = _enrollmentValidator.Validate(enrollment);
+        ValidationResult validationResult = _enrollmentValidator.Validate(enrollmentDto);
 
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
+        // Map to Enrollment
+        Enrollment enrollment = _mapper.Map<Enrollment>(enrollmentDto);
 
-        Enrollment dbEnrollment = _enrollmentService.Enroll(enrollment);
+        // Call to service
+        EnrollmentDto resultEnrollment = _enrollmentService.Enroll(enrollment);
 
-        return Created("/", dbEnrollment);
+        return Created("/", resultEnrollment);
     }
 
     [HttpGet("/api/user-enrollments/{userId}")]
@@ -120,12 +131,12 @@ public class UserController : ControllerBase, IDisposable
         if (!_userService.IsUserExists(userId))
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
-        List<Enrollment> enrollment = _enrollmentService.GetEnrollmentsByUserId(userId);
+        List<EnrollmentDto> dtoEnrollments = _enrollmentService.GetEnrollmentsByUserId(userId);
 
-        if (enrollment == null)
+        if (dtoEnrollments == null)
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
-        return Ok(enrollment);
+        return Ok(dtoEnrollments);
     }
 
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]

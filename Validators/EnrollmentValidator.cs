@@ -2,7 +2,7 @@
 
 namespace Matrix;
 
-public class EnrollmentValidator : AbstractValidator<Enrollment>, IDisposable
+public class EnrollmentValidator : AbstractValidator<EnrollmentDto>, IDisposable
 {
     // DI
     private CourseService _courseService;

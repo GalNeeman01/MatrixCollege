@@ -8,5 +8,8 @@ public class MappingProfile : Profile
     {
         CreateMap<Course, CourseDto>();
         CreateMap<CourseDto, Course>();
+
+        CreateMap<Enrollment, EnrollmentDto>();
+        CreateMap<EnrollmentDto, Enrollment>();
     }
 }
