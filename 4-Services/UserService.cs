@@ -51,23 +51,6 @@ public class UserService : IDisposable
         return !_db.Users.AsNoTracking().Any(user => user.Email == email.ToLower());
     }
 
-    public List<Progress> GetProgress(Guid userId)
-    {
-        return _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToList();
-    }
-
-    public Progress AddProgress(Progress progress)
-    {
-        DateTime now = DateTime.Now;
-        progress.WatchedAt = now;
-
-        _db.Progresses.Add(progress);
-
-        _db.SaveChanges();
-
-        return progress;
-    }
-
     // Dispose of unused resources
     public void Dispose()
     {

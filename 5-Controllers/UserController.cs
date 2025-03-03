@@ -10,6 +10,7 @@ public class UserController : ControllerBase, IDisposable
     // DI
     private UserService _userService;
     private EnrollmentService _enrollmentService;
+    private ProgressService _progressService;
 
     private IValidator<User> _userValidator;
     private IValidator<Progress> _progressValidator;
@@ -20,6 +21,7 @@ public class UserController : ControllerBase, IDisposable
     public UserController(
         UserService userService, 
         EnrollmentService enrollmentService,
+        ProgressService progressService,
         IValidator<User> userValidator, 
         IValidator<Progress> progressValidator, 
         IValidator<Enrollment> enrollmentValidator,
@@ -31,6 +33,7 @@ public class UserController : ControllerBase, IDisposable
         _enrollmentValidator = enrollmentValidator;
         _credentialsValidator = credentialsValidator;
         _enrollmentService = enrollmentService;
+        _progressService = progressService;
     }
 
     // Routes
@@ -79,7 +82,7 @@ public class UserController : ControllerBase, IDisposable
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
-        Progress dbProgress = _userService.AddProgress(progress);
+        Progress dbProgress = _progressService.AddProgress(progress);
 
         return Created("/", dbProgress);
     }
@@ -87,7 +90,7 @@ public class UserController : ControllerBase, IDisposable
     [HttpGet("/api/user-progress/{userId}")]
     public IActionResult GetUserProgress([FromRoute] Guid userId)
     {
-        return Ok(_userService.GetProgress(userId));
+        return Ok(_progressService.GetUserProgress(userId));
     }
 
     // Enrollment routes
@@ -122,6 +125,17 @@ public class UserController : ControllerBase, IDisposable
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
         return Ok(enrollment);
+    }
+
+    [HttpDelete("/api/user-enrollments/{enrollmentId}")]
+    public IActionResult RemoveEnrollment([FromRoute] Guid enrollmentId)
+    {
+        bool result = _enrollmentService.RemoveEnrollment(enrollmentId);
+
+        if (!result)
+            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
+
+        return NoContent();
     }
 
     // Dispose of unused resources

@@ -28,6 +28,19 @@ public class EnrollmentService : IDisposable
         return _db.Enrollments.AsNoTracking().Where(enr => enr.UserId == userId).ToList();
     }
 
+    public bool RemoveEnrollment(Guid id)
+    {
+        Enrollment? enrollment = _db.Enrollments.SingleOrDefault(e => e.Id == id);
+
+        if (enrollment == null)
+            return false;
+
+        _db.Enrollments.Remove(enrollment);
+        _db.SaveChanges();
+
+        return true;
+    }
+
     public void Dispose()
     {
         _db.Dispose();

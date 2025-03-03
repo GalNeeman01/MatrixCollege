@@ -12,14 +12,15 @@ public class Program
         // Setup appconfig
         AppConfig.Configure();
 
-        // Add DI objects
+        // Add DI services
         builder.Services.AddScoped<MatrixCollegeContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
         builder.Services.AddScoped<LessonService>();
         builder.Services.AddScoped<EnrollmentService>();
+        builder.Services.AddScoped<ProgressService>();
 
-        // Add Fluent DI objects
+        // Add Fluent DI validators
         builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<CourseValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<LessonValidator>();
