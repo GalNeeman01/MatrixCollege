@@ -8,10 +8,8 @@ public class Progress
     [Key]
     public Guid Id { get; set; }
 
-    //[ValidGuid(ErrorMessage = "UserId is a required field.")]
     public Guid UserId { get; set; } // Foreign key to Users
 
-    //[ValidGuid(ErrorMessage = "LessonId is a required field.")]
     public Guid LessonId { get; set; } // Foreign key to Lessons
 
     public DateTime? WatchedAt { get; set; }

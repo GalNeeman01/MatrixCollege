@@ -14,5 +14,8 @@ public class MappingProfile : Profile
 
         CreateMap<Lesson, LessonDto>();
         CreateMap<LessonDto, Lesson>();
+
+        CreateMap<Progress, ProgressDto>();
+        CreateMap<ProgressDto, Progress>();
     }
 }

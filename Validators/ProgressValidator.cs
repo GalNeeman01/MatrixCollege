@@ -2,7 +2,7 @@
 
 namespace Matrix;
 
-public class ProgressValidator : AbstractValidator<Progress>, IDisposable
+public class ProgressValidator : AbstractValidator<ProgressDto>, IDisposable
 {
     // DI
     private LessonService _lessonService;

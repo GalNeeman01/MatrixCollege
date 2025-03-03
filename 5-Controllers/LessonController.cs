@@ -51,7 +51,7 @@ public class LessonController : ControllerBase, IDisposable
     [HttpGet("/api/lessons/{lessonId}")]
     public IActionResult GetLessonById([FromRoute] Guid lessonId)
     {
-        Lesson? lesson = _lessonService.GetLessonById(lessonId);
+        LessonDto? lesson = _lessonService.GetLessonById(lessonId);
 
         // If no lesson with given id exists in DB
         if (lesson == null)

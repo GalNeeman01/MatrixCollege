@@ -1,22 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
 
 public class ProgressService : IDisposable
 {
     private MatrixCollegeContext _db;
+    private IMapper _mapper;
 
-    public ProgressService(MatrixCollegeContext db)
+    public ProgressService(MatrixCollegeContext db, IMapper mapper)
     {
         _db = db;
+        _mapper = mapper;
     }
 
-    public List<Progress> GetUserProgress(Guid userId)
+    public List<ProgressDto> GetUserProgress(Guid userId)
     {
-        return _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToList();
+        List<ProgressDto> dtoProgresses = new List<ProgressDto>();
+
+        // Map to DTO objects
+        _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToList()
+            .ForEach(progress => dtoProgresses.Add(_mapper.Map<ProgressDto>(progress)));
+
+        return dtoProgresses;
     }
 
-    public Progress AddProgress(Progress progress)
+    public ProgressDto AddProgress(Progress progress)
     {
         DateTime now = DateTime.Now;
         progress.WatchedAt = now;
@@ -25,7 +34,10 @@ public class ProgressService : IDisposable
 
         _db.SaveChanges();
 
-        return progress;
+        // Map to DTO
+        ProgressDto dto = _mapper.Map<ProgressDto>(progress);
+
+        return dto;
     }
 
     // Dispose of unused resources

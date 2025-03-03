@@ -2,7 +2,6 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
 
 namespace Matrix;
 
@@ -17,7 +16,7 @@ public class UserController : ControllerBase, IDisposable
 
         // Validators
     private IValidator<User> _userValidator;
-    private IValidator<Progress> _progressValidator;
+    private IValidator<ProgressDto> _progressValidator;
     private IValidator<EnrollmentDto> _enrollmentValidator;
     private IValidator<Credentials> _credentialsValidator;
 
@@ -30,7 +29,7 @@ public class UserController : ControllerBase, IDisposable
         EnrollmentService enrollmentService,
         ProgressService progressService,
         IValidator<User> userValidator, 
-        IValidator<Progress> progressValidator, 
+        IValidator<ProgressDto> progressValidator, 
         IValidator<EnrollmentDto> enrollmentValidator,
         IValidator<Credentials> credentialsValidator,
         IMapper mapper)
@@ -81,19 +80,20 @@ public class UserController : ControllerBase, IDisposable
 
     // Progress routes
     [HttpPost("/api/user-progress")]
-    public IActionResult AddProgress([FromBody] Progress progress)
+    public IActionResult AddProgress([FromBody] ProgressDto progressDto)
     {
-        if (progress == null)
+        if (progressDto == null)
             return BadRequest(new RequestDataError());
 
-        ValidationResult validationResult = _progressValidator.Validate(progress);
+        ValidationResult validationResult = _progressValidator.Validate(progressDto);
 
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
-        Progress dbProgress = _progressService.AddProgress(progress);
+        Progress progress = _mapper.Map<Progress>(progressDto);
+        ProgressDto resultProgress = _progressService.AddProgress(progress);
 
-        return Created("/", dbProgress);
+        return Created("/", resultProgress);
     }
 
     [HttpGet("/api/user-progress/{userId}")]
