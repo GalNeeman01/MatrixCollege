@@ -17,5 +17,11 @@ public class MappingProfile : Profile
 
         CreateMap<Progress, ProgressDto>();
         CreateMap<ProgressDto, Progress>();
+
+        CreateMap<User, CreateUserDto>();
+        CreateMap<CreateUserDto, User>();
+
+        CreateMap<User, UserResponseDto>();
+        CreateMap<UserResponseDto, User>();
     }
 }

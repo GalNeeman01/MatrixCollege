@@ -1,18 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
 
 public class UserService : IDisposable
 {
     private MatrixCollegeContext _db;
+    private IMapper _mapper;
 
-    public UserService (MatrixCollegeContext matrixCollegeContext)
+    public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper)
     {
         _db = matrixCollegeContext;
+        _mapper = mapper;
         
     }
 
-    public User Register(User user)
+    public UserResponseDto Register(User user)
     {
         user.Email = user.Email.ToLower(); // Format email
         user.Password = Encryptor.GetHashed(user.Password); // Convert to hashed
@@ -21,12 +24,13 @@ public class UserService : IDisposable
 
         _db.SaveChanges();
 
-        user.Password = null;
+        // Map to UserResponseDto
+        UserResponseDto dto = _mapper.Map<UserResponseDto>(user);
 
-        return user;
+        return dto;
     }
 
-    public User? Login(Credentials credentials)
+    public UserResponseDto? Login(Credentials credentials)
     {
         credentials.Email = credentials.Email.ToLower(); // Format email
         credentials.Password = Encryptor.GetHashed(credentials.Password); // Convert to hashed
@@ -36,9 +40,10 @@ public class UserService : IDisposable
 
         if (dbUser == null) return null;
 
-        dbUser.Password = null; // Do not send back the user's password
+        // Map to UserResponseDto
+        UserResponseDto dto = _mapper.Map<UserResponseDto>(dbUser);
 
-        return dbUser;
+        return dto;
     }
 
     public bool IsUserExists(Guid id)

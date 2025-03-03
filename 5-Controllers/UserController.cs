@@ -15,7 +15,7 @@ public class UserController : ControllerBase, IDisposable
     private ProgressService _progressService;
 
         // Validators
-    private IValidator<User> _userValidator;
+    private IValidator<CreateUserDto> _userValidator;
     private IValidator<ProgressDto> _progressValidator;
     private IValidator<EnrollmentDto> _enrollmentValidator;
     private IValidator<Credentials> _credentialsValidator;
@@ -28,7 +28,7 @@ public class UserController : ControllerBase, IDisposable
         UserService userService, 
         EnrollmentService enrollmentService,
         ProgressService progressService,
-        IValidator<User> userValidator, 
+        IValidator<CreateUserDto> userValidator, 
         IValidator<ProgressDto> progressValidator, 
         IValidator<EnrollmentDto> enrollmentValidator,
         IValidator<Credentials> credentialsValidator,
@@ -46,18 +46,21 @@ public class UserController : ControllerBase, IDisposable
 
     // Routes
     [HttpPost("/api/register")]
-    public IActionResult Register([FromBody] User user)
+    public IActionResult Register([FromBody] CreateUserDto userDto)
     {
         // Fluent validation
-        ValidationResult validationResult = _userValidator.Validate(user);
+        ValidationResult validationResult = _userValidator.Validate(userDto);
 
         if (!validationResult.IsValid)
         {
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
         }
 
-        User dbUser = _userService.Register(user);
-        return Created("/", dbUser);
+        // Map to User object
+        User user = _mapper.Map<User>(userDto);
+
+        UserResponseDto resultDto = _userService.Register(user);
+        return Created("/", resultDto);
     }
 
     [HttpPost("/api/login")]
@@ -70,12 +73,12 @@ public class UserController : ControllerBase, IDisposable
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
 
-        User? dbUser = _userService.Login(credentials);
+        UserResponseDto? resultUserDto = _userService.Login(credentials);
 
-        if (dbUser == null)
+        if (resultUserDto == null)
             return BadRequest(new ValidationError("Incorrect email or password."));
 
-        return Ok(dbUser);
+        return Ok(resultUserDto);
     }
 
     // Progress routes

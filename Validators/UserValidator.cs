@@ -2,7 +2,7 @@
 
 namespace Matrix;
 
-public class UserValidator : AbstractValidator<User>, IDisposable
+public class UserValidator : AbstractValidator<CreateUserDto>, IDisposable
 {
     // DI
     private UserService _userService;
