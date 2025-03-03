@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,32 +9,40 @@ namespace Matrix;
 public class CourseController : ControllerBase, IDisposable
 {
     private CourseService _courseService;
-    private IValidator<Course> _validator;
+    private IValidator<CourseDto> _validator;
+    private IMapper _mapper;
 
-    public CourseController(CourseService courseService, IValidator<Course> validator)
+    public CourseController(CourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
     {
         _courseService = courseService;
         _validator = validator;
+        _mapper = mapper;
     }
 
     [HttpPost("/api/courses")]
-    public IActionResult CreateCourse([FromBody] Course course)
+    public IActionResult CreateCourse([FromBody] CourseDto courseDto)
     {
         // Fluent validation
-        ValidationResult validationResult = _validator.Validate(course);
+        ValidationResult validationResult = _validator.Validate(courseDto);
 
         if (!validationResult.IsValid)
         {
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
         }
 
-        return Created("/", _courseService.CreateCourse(course));
+        // Map Dto to Course object
+        Course course = _mapper.Map<Course>(courseDto);
+
+        // Retreive created courseDto
+        CourseDto createdCourse = _courseService.CreateCourse(course);
+
+        return Created("/", createdCourse);
     }
 
     [HttpGet("/api/courses")]
     public IActionResult GetAllCourses()
     {
-        List<Course> courses = _courseService.GetAllCourses();
+        List<CourseDto> courses = _courseService.GetAllCourses();
 
         return Ok(courses);
     }
@@ -41,7 +50,7 @@ public class CourseController : ControllerBase, IDisposable
     [HttpGet("/api/courses/{courseId}")]
     public IActionResult GetCourseById([FromRoute] Guid courseId)
     {
-        Course? course = _courseService.GetCourseById(courseId);
+        CourseDto? course = _courseService.GetCourseById(courseId);
 
         if (course == null)
             return NotFound(new ResourceNotFoundError(courseId.ToString()));

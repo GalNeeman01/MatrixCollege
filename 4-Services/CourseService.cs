@@ -1,17 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
 
 public class CourseService : IDisposable
 {
     private MatrixCollegeContext _db;
+    private IMapper _mapper;
 
-    public CourseService(MatrixCollegeContext db)
+
+    public CourseService(MatrixCollegeContext db, IMapper mapper)
     {
         _db = db;
+        _mapper = mapper;
     }
 
-    public Course CreateCourse(Course course)
+    public CourseDto CreateCourse(Course course)
     {
         course.CreatedAt = DateTime.Now; // Set the current time
 
@@ -19,17 +23,32 @@ public class CourseService : IDisposable
 
         _db.SaveChanges();
 
-        return course;
+        CourseDto courseDto = _mapper.Map<CourseDto>(course);
+
+        return courseDto;
     }
 
-    public List<Course> GetAllCourses()
+    public List<CourseDto> GetAllCourses()
     {
-        return _db.Courses.AsNoTracking().ToList();
+        // Dtos to return
+        List<CourseDto> courses = new List<CourseDto>();
+
+        // Run through returned data and convert to DTO objects
+        _db.Courses.AsNoTracking().ToList().ForEach(course =>
+        {
+            courses.Add(_mapper.Map<CourseDto>(course));
+        });
+
+        return courses;
     }
 
-    public Course? GetCourseById(Guid courseId)
+    public CourseDto? GetCourseById(Guid courseId)
     {
-        return _db.Courses.AsNoTracking().SingleOrDefault(course => course.Id == courseId);
+        Course? dbCourse = _db.Courses.AsNoTracking().SingleOrDefault(course => course.Id == courseId);
+
+        if (dbCourse == null) return null;
+
+        return _mapper.Map<CourseDto>(dbCourse);
     }
 
     // Return whether a course exists in the DB

@@ -2,7 +2,7 @@
 
 namespace Matrix;
 
-public class CourseValidator : AbstractValidator<Course>
+public class CourseValidator : AbstractValidator<CourseDto>
 {
     public CourseValidator()
     {

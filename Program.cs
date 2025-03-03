@@ -16,6 +16,9 @@ public class Program
 
         builder.Host.UseSerilog();
 
+        // Use AutoMapper
+        builder.Services.AddAutoMapper(typeof(Program));
+
         // Setup appconfig
         AppConfig.Configure();
 
