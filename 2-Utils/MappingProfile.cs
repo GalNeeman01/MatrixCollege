@@ -11,5 +11,8 @@ public class MappingProfile : Profile
 
         CreateMap<Enrollment, EnrollmentDto>();
         CreateMap<EnrollmentDto, Enrollment>();
+
+        CreateMap<Lesson, LessonDto>();
+        CreateMap<LessonDto, Lesson>();
     }
 }

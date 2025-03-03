@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,27 +9,33 @@ namespace Matrix;
 public class LessonController : ControllerBase, IDisposable
 {
     private LessonService _lessonService;
-    private IValidator<Lesson> _validator;
+    private IValidator<LessonDto> _validator;
+    private IMapper _mapper;
 
-    public LessonController(LessonService lessonService, IValidator<Lesson> validator)
+    public LessonController(LessonService lessonService, IValidator<LessonDto> validator, IMapper mapper)
     {
         _lessonService = lessonService;
         _validator = validator;
+        _mapper = mapper;
     }
     
     [HttpPost("/api/lessons")]
-    public IActionResult AddLesson([FromBody] Lesson lesson)
+    public IActionResult AddLesson([FromBody] LessonDto lessonDto)
     {
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
-        if (lesson == null)
+        if (lessonDto == null)
             return BadRequest(new RequestDataError());
 
-        ValidationResult validationResult = _validator.Validate(lesson);
+        ValidationResult validationResult = _validator.Validate(lessonDto);
 
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
-        Lesson dbLesson = _lessonService.AddLesson(lesson);
+        // Map to Lesson
+        Lesson lesson = _mapper.Map<Lesson>(lessonDto);
+
+        // Call to service
+        LessonDto dbLesson = _lessonService.AddLesson(lesson);
 
         return Created("/", dbLesson);
     }
@@ -36,7 +43,7 @@ public class LessonController : ControllerBase, IDisposable
     [HttpGet("/api/lessons")]
     public IActionResult GetAllLessons()
     {
-        List<Lesson> lessons = _lessonService.GetAllLessons();
+        List<LessonDto> lessons = _lessonService.GetAllLessons();
 
         return Ok(lessons);
     }

@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Matrix;
 
-public class LessonValidator : AbstractValidator<Lesson>, IDisposable
+public class LessonValidator : AbstractValidator<LessonDto>, IDisposable
 {
     // DI
     private CourseService _courseService;
