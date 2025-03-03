@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Matrix;
 
@@ -8,6 +9,12 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // Setup Serilog Logger
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration).CreateLogger();
+
+        builder.Host.UseSerilog();
 
         // Setup appconfig
         AppConfig.Configure();
@@ -36,6 +43,8 @@ public class Program
         builder.Services.AddControllers();
 
         var app = builder.Build();
+
+        app.UseSerilogRequestLogging();
 
         app.MapControllers();
 

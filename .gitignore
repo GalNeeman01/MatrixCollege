@@ -3,3 +3,4 @@ Dependencies/
 bin/
 obj/
 migrations
+logs/
