@@ -1,7 +1,3 @@
 Optional:
-* Add more specific logging to serilog
-* Save logs when creating new ones
-* Add roles (professor, student, admin)
 
 Must:
-* Add catch-all middleware
