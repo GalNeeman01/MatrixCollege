@@ -22,28 +22,28 @@ public class UserService : IDisposable
         
     }
 
-    public string Register(User user)
+    public async Task<string> Register(User user)
     {
         user.Email = user.Email.ToLower(); // Format email
         user.Password = Encryptor.GetHashed(user.Password); // Convert to hashed
         user.RoleId = (int)RolesEnum.Student;
 
-        _db.Users.Add(user);
+        await _db.Users.AddAsync(user);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
-        user.Role = _db.Roles.Single(role => role.Id == user.RoleId);
+        user.Role = await _db.Roles.SingleAsync(role => role.Id == user.RoleId);
 
         return JwtHelper.GetNewToken(user);
     }
 
-    public string? Login(Credentials credentials)
+    public async Task<string?> Login(Credentials credentials)
     {
         credentials.Email = credentials.Email.ToLower(); // Format email
         credentials.Password = Encryptor.GetHashed(credentials.Password); // Convert to hashed
 
         // Retrieve user from DB 
-        User? dbUser = _db.Users.AsNoTracking().Include(u => u.Role).SingleOrDefault(user => user.Email == credentials.Email && user.Password == credentials.Password);
+        User? dbUser = await _db.Users.AsNoTracking().Include(u => u.Role).SingleOrDefaultAsync(user => user.Email == credentials.Email && user.Password == credentials.Password);
 
         if (dbUser == null) return null;
 
@@ -55,9 +55,9 @@ public class UserService : IDisposable
         return _db.Users.AsNoTracking().Any(user => user.Id == id);
     }
 
-    public bool IsEmailUnique (string email)
+    public async Task<bool> IsEmailUnique (string email)
     {
-        return !_db.Users.AsNoTracking().Any(user => user.Email == email.ToLower());
+        return await _db.Users.AsNoTracking().AnyAsync(user => user.Email == email.ToLower()) == false;
     }
 
     // Dispose of unused resources

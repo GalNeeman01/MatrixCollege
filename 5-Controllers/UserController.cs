@@ -47,7 +47,7 @@ public class UserController : ControllerBase, IDisposable
 
     // Routes
     [HttpPost("/api/register")]
-    public IActionResult Register([FromBody] CreateUserDto userDto)
+    public async Task<IActionResult> Register([FromBody] CreateUserDto userDto)
     {
         // Fluent validation
         ValidationResult validationResult = _userValidator.Validate(userDto);
@@ -55,18 +55,18 @@ public class UserController : ControllerBase, IDisposable
         if (!validationResult.IsValid)
              return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        if (!_userService.IsEmailUnique(userDto.Email))
+        if (!(await _userService.IsEmailUnique(userDto.Email)))
             return BadRequest(new ValidationError<string>("Email is already taken."));
 
         // Map to User object
         User user = _mapper.Map<User>(userDto);
 
-        string token = _userService.Register(user);
+        string token = await _userService.Register(user);
         return Created("/", token);
     }
 
     [HttpPost("/api/login")]
-    public IActionResult Login([FromBody] Credentials credentials)
+    public async Task<IActionResult> Login([FromBody] Credentials credentials)
     {
         // Fluent validation
         ValidationResult validationResult = _credentialsValidator.Validate(credentials);
@@ -75,7 +75,7 @@ public class UserController : ControllerBase, IDisposable
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
 
-        string? token = _userService.Login(credentials);
+        string? token = await _userService.Login(credentials);
 
         if (token == null)
             return BadRequest(new ValidationError<string>("Incorrect email or password."));
@@ -86,7 +86,7 @@ public class UserController : ControllerBase, IDisposable
     // Progress routes
     [Authorize(Roles = "Student")]
     [HttpPost("/api/user-progress")]
-    public IActionResult AddProgress([FromBody] ProgressDto progressDto)
+    public async Task<IActionResult> AddProgress([FromBody] ProgressDto progressDto)
     {
         if (progressDto == null)
             return BadRequest(new RequestDataError());
@@ -97,21 +97,21 @@ public class UserController : ControllerBase, IDisposable
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         Progress progress = _mapper.Map<Progress>(progressDto);
-        ProgressDto resultProgress = _progressService.AddProgress(progress);
+        ProgressDto resultProgress = await _progressService.AddProgress(progress);
 
         return Created("/", resultProgress);
     }
 
     [Authorize(Roles = "Student")]
     [HttpGet("/api/user-progress/{userId}")]
-    public IActionResult GetUserProgress([FromRoute] Guid userId)
+    public async Task<IActionResult> GetUserProgress([FromRoute] Guid userId)
     {
-        return Ok(_progressService.GetUserProgress(userId));
+        return Ok(await _progressService.GetUserProgress(userId));
     }
 
     [Authorize(Roles = "Student")]
     [HttpPost("/api/user-enroll")]
-    public IActionResult AddEnrollment([FromBody] EnrollmentDto enrollmentDto)
+    public async Task<IActionResult> AddEnrollment([FromBody] EnrollmentDto enrollmentDto)
     {
         // In case of invalid Guid from request which would cause a crash
         if (enrollmentDto == null)
@@ -127,19 +127,19 @@ public class UserController : ControllerBase, IDisposable
         Enrollment enrollment = _mapper.Map<Enrollment>(enrollmentDto);
 
         // Call to service
-        EnrollmentDto resultEnrollment = _enrollmentService.Enroll(enrollment);
+        EnrollmentDto resultEnrollment = await _enrollmentService.Enroll(enrollment);
 
         return Created("/", resultEnrollment);
     }
 
     [Authorize(Roles = "Student")]
     [HttpGet("/api/user-enrollments/{userId}")]
-    public IActionResult GetUserEnrollments([FromRoute] Guid userId)
+    public async Task<IActionResult> GetUserEnrollments([FromRoute] Guid userId)
     {
         if (!_userService.IsUserExists(userId))
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
-        List<EnrollmentDto> dtoEnrollments = _enrollmentService.GetEnrollmentsByUserId(userId);
+        List<EnrollmentDto> dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserId(userId);
 
         if (dtoEnrollments == null)
             return NotFound(new ResourceNotFoundError(userId.ToString()));
@@ -149,9 +149,9 @@ public class UserController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Student")]
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]
-    public IActionResult RemoveEnrollment([FromRoute] Guid enrollmentId)
+    public async Task<IActionResult> RemoveEnrollment([FromRoute] Guid enrollmentId)
     {
-        bool result = _enrollmentService.RemoveEnrollment(enrollmentId);
+        bool result = await _enrollmentService.RemoveEnrollment(enrollmentId);
 
         if (!result)
             return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));

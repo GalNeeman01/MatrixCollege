@@ -14,13 +14,13 @@ public class EnrollmentService : IDisposable
         _mapper = mapper;
     }
 
-    public EnrollmentDto Enroll(Enrollment enrollment)
+    public async Task<EnrollmentDto> Enroll(Enrollment enrollment)
     {
         DateTime now = DateTime.Now; // Store current time
 
-        _db.Enrollments.Add(enrollment);
+        await _db.Enrollments.AddAsync(enrollment);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         // Map to DTO
         EnrollmentDto dto = _mapper.Map<EnrollmentDto>(enrollment);
@@ -28,25 +28,25 @@ public class EnrollmentService : IDisposable
         return dto;
     }
 
-    public List<EnrollmentDto> GetEnrollmentsByUserId(Guid userId)
+    public async Task<List<EnrollmentDto>> GetEnrollmentsByUserId(Guid userId)
     {
         List<EnrollmentDto> dtoEnrollments = new List<EnrollmentDto>();
 
-        _db.Enrollments.AsNoTracking().Where(enr => enr.UserId == userId).ToList()
-            .ForEach(enr => dtoEnrollments.Add(_mapper.Map<EnrollmentDto>(enr)));
+        List<Enrollment> dbEnrollments = await _db.Enrollments.AsNoTracking().Where(enr => enr.UserId == userId).ToListAsync();
+        dbEnrollments.ForEach(enr => dtoEnrollments.Add(_mapper.Map<EnrollmentDto>(enr)));
 
         return dtoEnrollments;
     }
 
-    public bool RemoveEnrollment(Guid id)
+    public async Task<bool> RemoveEnrollment(Guid id)
     {
-        Enrollment? enrollment = _db.Enrollments.SingleOrDefault(e => e.Id == id);
+        Enrollment? enrollment = await _db.Enrollments.SingleOrDefaultAsync(e => e.Id == id);
 
         if (enrollment == null)
             return false;
 
         _db.Enrollments.Remove(enrollment);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         return true;
     }

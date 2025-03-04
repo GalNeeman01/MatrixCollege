@@ -14,25 +14,25 @@ public class ProgressService : IDisposable
         _mapper = mapper;
     }
 
-    public List<ProgressDto> GetUserProgress(Guid userId)
+    public async Task<List<ProgressDto>> GetUserProgress(Guid userId)
     {
         List<ProgressDto> dtoProgresses = new List<ProgressDto>();
 
         // Map to DTO objects
-        _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToList()
-            .ForEach(progress => dtoProgresses.Add(_mapper.Map<ProgressDto>(progress)));
+        List<Progress> dbProgresses = await _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToListAsync();
+        dbProgresses.ForEach(progress => dtoProgresses.Add(_mapper.Map<ProgressDto>(progress)));
 
         return dtoProgresses;
     }
 
-    public ProgressDto AddProgress(Progress progress)
+    public async Task<ProgressDto> AddProgress(Progress progress)
     {
         DateTime now = DateTime.Now;
         progress.WatchedAt = now;
 
-        _db.Progresses.Add(progress);
+        await _db.Progresses.AddAsync(progress);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         // Map to DTO
         ProgressDto dto = _mapper.Map<ProgressDto>(progress);
