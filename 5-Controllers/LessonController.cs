@@ -22,7 +22,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPost("/api/lessons")]
-    public IActionResult AddLesson([FromBody] LessonDto lessonDto)
+    public async Task<IActionResult> AddLesson([FromBody] LessonDto lessonDto)
     {
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
         if (lessonDto == null)
@@ -37,25 +37,25 @@ public class LessonController : ControllerBase, IDisposable
         Lesson lesson = _mapper.Map<Lesson>(lessonDto);
 
         // Call to service
-        LessonDto dbLesson = _lessonService.AddLesson(lesson);
+        LessonDto dbLesson = await _lessonService.AddLesson(lesson);
 
         return Created("/", dbLesson);
     }
 
     [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons")]
-    public IActionResult GetAllLessons()
+    public async Task<IActionResult> GetAllLessons()
     {
-        List<LessonDto> lessons = _lessonService.GetAllLessons();
+        List<LessonDto> lessons = await _lessonService.GetAllLessons();
 
         return Ok(lessons);
     }
 
     [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons/{lessonId}")]
-    public IActionResult GetLessonById([FromRoute] Guid lessonId)
+    public async Task<IActionResult> GetLessonById([FromRoute] Guid lessonId)
     {
-        LessonDto? lesson = _lessonService.GetLessonById(lessonId);
+        LessonDto? lesson = await _lessonService.GetLessonById(lessonId);
 
         // If no lesson with given id exists in DB
         if (lesson == null)
@@ -73,9 +73,9 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/lessons/{lessonId}")]
-    public IActionResult RemoveLesson([FromRoute] Guid lessonId)
+    public async Task<IActionResult> RemoveLesson([FromRoute] Guid lessonId)
     {
-        bool result = _lessonService.RemoveLesson(lessonId);
+        bool result = await _lessonService.RemoveLesson(lessonId);
 
         // If no lesson with this id exists
         if (!result)
@@ -86,7 +86,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPut("/api/lessons/{lessonId}")]
-    public IActionResult UpdateLesson([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
+    public async Task<IActionResult> UpdateLesson([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
     {
         // Fluent validation on DTO:
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
@@ -103,7 +103,7 @@ public class LessonController : ControllerBase, IDisposable
         lesson.Id = lessonId;
 
         // Call to service
-        LessonDto? resultLessonDto = _lessonService.UpdateLesson(lesson);
+        LessonDto? resultLessonDto = await _lessonService.UpdateLesson(lesson);
 
         if (resultLessonDto == null) return NotFound(new ResourceNotFoundError(lessonId.ToString()));
 

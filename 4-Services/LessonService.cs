@@ -14,20 +14,20 @@ public class LessonService : IDisposable
         _mapper = mapper;
     }
 
-    public List<LessonDto> GetAllLessons()
+    public async Task<List<LessonDto>> GetAllLessons()
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
         // Map to DTO objects
-        _db.Lessons.AsNoTracking().ToList()
-            .ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
+        List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().ToListAsync();
+        dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
 
         return dtoLessons;
     }
 
-    public LessonDto? GetLessonById(Guid id)
+    public async Task<LessonDto?> GetLessonById(Guid id)
     {
-        Lesson? lesson = _db.Lessons.AsNoTracking().SingleOrDefault(lesson => lesson.Id == id);
+        Lesson? lesson = await _db.Lessons.AsNoTracking().SingleOrDefaultAsync(lesson => lesson.Id == id);
 
         if (lesson == null) return null;
         
@@ -39,11 +39,11 @@ public class LessonService : IDisposable
         return _db.Lessons.AsNoTracking().Any(lesson => lesson.Id == lessonId);
     }
 
-    public LessonDto AddLesson(Lesson lesson)
+    public async Task<LessonDto> AddLesson(Lesson lesson)
     {
-        _db.Lessons.Add(lesson);
+        await _db.Lessons.AddAsync(lesson);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         // Map to DTO
         LessonDto dto = _mapper.Map<LessonDto>(lesson);
@@ -61,27 +61,27 @@ public class LessonService : IDisposable
         return dtoLessons;
     }
 
-    public bool RemoveLesson(Guid lessonId)
+    public async Task<bool> RemoveLesson(Guid lessonId)
     {
-        Lesson? lesson = _db.Lessons.AsNoTracking().SingleOrDefault(lesson => lesson.Id == lessonId);
+        Lesson? lesson = await _db.Lessons.AsNoTracking().SingleOrDefaultAsync(lesson => lesson.Id == lessonId);
 
         // If no such lesson exists
         if (lesson == null) return false;
 
         _db.Lessons.Remove(lesson);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         return true;
     }
 
-    public LessonDto? UpdateLesson(Lesson lesson)
+    public async Task<LessonDto?> UpdateLesson(Lesson lesson)
     {
         if (!IsLessonExists(lesson.Id)) return null;
 
         _db.Lessons.Attach(lesson);
         _db.Entry(lesson).State = EntityState.Modified;
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         LessonDto dto = _mapper.Map<LessonDto>(lesson);
 
