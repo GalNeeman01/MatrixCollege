@@ -3,18 +3,12 @@ using System.Text.RegularExpressions;
 
 namespace Matrix;
 
-public class LessonValidator : AbstractValidator<LessonDto>, IDisposable
+public class LessonValidator : AbstractValidator<LessonDto>
 {
-    // DI
-    private CourseService _courseService;
-
-    public LessonValidator(CourseService courseService)
+    public LessonValidator()
     {
-        _courseService = courseService;
-
         // Not null and exists in DB
-        RuleFor(lesson => lesson.CourseId).NotEmpty().WithMessage("The CourseId field is required.")
-            .Must(CourseExists).WithMessage("No course was found for the provided courseId.");
+        RuleFor(lesson => lesson.CourseId).NotEmpty().WithMessage("The CourseId field is required.");
 
         RuleFor(lesson => lesson.Title).NotNull().WithMessage("Title field is required.")
             .MinimumLength(5).WithMessage("Title must be at least 5 characters long.")
@@ -32,15 +26,5 @@ public class LessonValidator : AbstractValidator<LessonDto>, IDisposable
             return false;
 
         return Regex.Match(url, "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$").Success;
-    }
-
-    private bool CourseExists(Guid courseId)
-    {
-        return _courseService.IsCourseExists(courseId);
-    }
-
-    public void Dispose()
-    {
-        _courseService.Dispose();
     }
 }

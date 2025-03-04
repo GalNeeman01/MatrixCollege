@@ -11,13 +11,15 @@ public class LessonController : ControllerBase, IDisposable
 {
     private LessonService _lessonService;
     private IValidator<LessonDto> _validator;
+    private CourseService _courseService;
     private IMapper _mapper;
 
-    public LessonController(LessonService lessonService, IValidator<LessonDto> validator, IMapper mapper)
+    public LessonController(LessonService lessonService, IValidator<LessonDto> validator, IMapper mapper, CourseService courseService)
     {
         _lessonService = lessonService;
         _validator = validator;
         _mapper = mapper;
+        _courseService = courseService;
     }
 
     [Authorize(Roles = "Professor")]
@@ -27,6 +29,9 @@ public class LessonController : ControllerBase, IDisposable
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
         if (lessonDto == null)
             return BadRequest(new RequestDataError());
+
+        if (!_courseService.IsCourseExists(lessonDto.CourseId))
+            return BadRequest(new ResourceNotFoundError(lessonDto.CourseId.ToString()));
 
         ValidationResult validationResult = _validator.Validate(lessonDto);
 
