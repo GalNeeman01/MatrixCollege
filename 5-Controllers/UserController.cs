@@ -53,9 +53,10 @@ public class UserController : ControllerBase, IDisposable
         ValidationResult validationResult = _userValidator.Validate(userDto);
 
         if (!validationResult.IsValid)
-        {
              return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-        }
+
+        if (!_userService.IsEmailUnique(userDto.Email))
+            return BadRequest(new ValidationError<string>("Email is already taken."));
 
         // Map to User object
         User user = _mapper.Map<User>(userDto);

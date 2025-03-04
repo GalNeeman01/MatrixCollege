@@ -2,15 +2,10 @@
 
 namespace Matrix;
 
-public class UserValidator : AbstractValidator<CreateUserDto>, IDisposable
+public class UserValidator : AbstractValidator<CreateUserDto>
 {
-    // DI
-    private UserService _userService;
-
     public UserValidator(UserService userService)
     {
-        _userService = userService;
-        
         // required, min - 8, max - 50
         RuleFor(user => user.Name).NotNull().WithMessage("Name is a required field.")
             .MinimumLength(8).WithMessage("Name must be at least 8 characters long.")
@@ -20,8 +15,7 @@ public class UserValidator : AbstractValidator<CreateUserDto>, IDisposable
         RuleFor(user => user.Email).NotNull().WithMessage("Email is a required field.")
             .MinimumLength(10).WithMessage("Email must be at least 10 characters long.")
             .MaximumLength(320).WithMessage("Email cannot exceed 320 characters in length.")
-            .Must(GlobalValidations.EmailFormat).WithMessage("Email is in incorrect format.")
-            .Must(UniqueEmail).WithMessage("Email is already taken.");
+            .Must(GlobalValidations.EmailFormat).WithMessage("Email is in incorrect format.");
 
         // required, strong password
         RuleFor(user => user.Password).NotNull().WithMessage("Password is a required field.")
@@ -30,15 +24,6 @@ public class UserValidator : AbstractValidator<CreateUserDto>, IDisposable
     }
 
     // Custom validations
-    // Check if email is unique
-    private bool UniqueEmail(string email)
-    {
-        if (email == null)
-            return false;
-
-        return _userService.IsEmailUnique(email);
-    }
-
     // Check for strong password.
     public bool StrongPassword(string password)
     {
@@ -57,10 +42,5 @@ public class UserValidator : AbstractValidator<CreateUserDto>, IDisposable
 
         // Passed
         return true;
-    }
-
-    public void Dispose()
-    {
-        _userService.Dispose();
     }
 }
