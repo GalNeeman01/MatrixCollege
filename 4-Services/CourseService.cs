@@ -15,26 +15,28 @@ public class CourseService : IDisposable
         _mapper = mapper;
     }
 
-    public CourseDto CreateCourse(Course course)
+    public async Task<CourseDto> CreateCourse(Course course)
     {
         course.CreatedAt = DateTime.Now; // Set the current time
 
-        _db.Courses.Add(course);
+        await _db.Courses.AddAsync(course);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         CourseDto courseDto = _mapper.Map<CourseDto>(course);
 
         return courseDto;
     }
 
-    public List<CourseDto> GetAllCourses()
+    public async Task<List<CourseDto>> GetAllCourses()
     {
         // Dtos to return
         List<CourseDto> courses = new List<CourseDto>();
 
         // Run through returned data and convert to DTO objects
-        _db.Courses.AsNoTracking().ToList().ForEach(course =>
+        List<Course> dbCourses = await _db.Courses.AsNoTracking().ToListAsync();
+
+        dbCourses.ForEach(course =>
         {
             courses.Add(_mapper.Map<CourseDto>(course));
         });
@@ -42,9 +44,9 @@ public class CourseService : IDisposable
         return courses;
     }
 
-    public CourseDto? GetCourseById(Guid courseId)
+    public async Task<CourseDto?> GetCourseById(Guid courseId)
     {
-        Course? dbCourse = _db.Courses.AsNoTracking().SingleOrDefault(course => course.Id == courseId);
+        Course? dbCourse = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
 
         if (dbCourse == null) return null;
 
@@ -57,16 +59,16 @@ public class CourseService : IDisposable
         return _db.Courses.AsNoTracking().Any(course => course.Id == courseId);
     }
 
-    public bool RemoveCourse(Guid courseId)
+    public async Task<bool> RemoveCourse(Guid courseId)
     {
-        Course? course = _db.Courses.AsNoTracking().SingleOrDefault(course => course.Id == courseId);
+        Course? course = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
 
         // If no such course exists
         if (course == null) return false;
 
         _db.Courses.Remove(course);
 
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
 
         return true;
     }

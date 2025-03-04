@@ -22,37 +22,35 @@ public class CourseController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPost("/api/courses")]
-    public IActionResult CreateCourse([FromBody] CourseDto courseDto)
+    public async Task<IActionResult> CreateCourse([FromBody] CourseDto courseDto)
     {
         // Fluent validation
         ValidationResult validationResult = _validator.Validate(courseDto);
 
         if (!validationResult.IsValid)
-        {
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-        }
 
         // Map Dto to Course object
         Course course = _mapper.Map<Course>(courseDto);
 
         // Retreive created courseDto
-        CourseDto createdCourse = _courseService.CreateCourse(course);
+        CourseDto createdCourse = await _courseService.CreateCourse(course);
 
         return Created("/", createdCourse);
     }
 
     [HttpGet("/api/courses")]
-    public IActionResult GetAllCourses()
+    public async Task<IActionResult> GetAllCourses()
     {
-        List<CourseDto> courses = _courseService.GetAllCourses();
+        List<CourseDto> courses = await _courseService.GetAllCourses();
 
         return Ok(courses);
     }
 
     [HttpGet("/api/courses/{courseId}")]
-    public IActionResult GetCourseById([FromRoute] Guid courseId)
+    public async Task<IActionResult> GetCourseById([FromRoute] Guid courseId)
     {
-        CourseDto? course = _courseService.GetCourseById(courseId);
+        CourseDto? course = await _courseService.GetCourseById(courseId);
 
         if (course == null)
             return NotFound(new ResourceNotFoundError(courseId.ToString()));
@@ -62,9 +60,9 @@ public class CourseController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/courses/{courseId}")]
-    public IActionResult RemoveCourse([FromRoute] Guid courseId)
+    public async Task<IActionResult> RemoveCourse([FromRoute] Guid courseId)
     {
-        bool result = _courseService.RemoveCourse(courseId);
+        bool result = await _courseService.RemoveCourse(courseId);
 
         // If no lesson with this id exists
         if (!result)
