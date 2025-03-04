@@ -22,7 +22,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPost("/api/lessons")]
-    public async Task<IActionResult> AddLesson([FromBody] LessonDto lessonDto)
+    public async Task<IActionResult> AddLessonAsync([FromBody] LessonDto lessonDto)
     {
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
         if (lessonDto == null)
@@ -44,7 +44,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons")]
-    public async Task<IActionResult> GetAllLessons()
+    public async Task<IActionResult> GetAllLessonsAsync()
     {
         List<LessonDto> lessons = await _lessonService.GetAllLessons();
 
@@ -53,7 +53,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons/{lessonId}")]
-    public async Task<IActionResult> GetLessonById([FromRoute] Guid lessonId)
+    public async Task<IActionResult> GetLessonByIdAsync([FromRoute] Guid lessonId)
     {
         LessonDto? lesson = await _lessonService.GetLessonById(lessonId);
 
@@ -66,14 +66,14 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons-by-course/{courseId}")]
-    public IActionResult GetLessonsByCourseId([FromRoute] Guid courseId)
+    public async Task<IActionResult> GetLessonsByCourseIdAsync([FromRoute] Guid courseId)
     {
-        return Ok(_lessonService.GetLessonsByCourseId(courseId));
+        return Ok(await _lessonService.GetLessonsByCourseId(courseId));
     }
 
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/lessons/{lessonId}")]
-    public async Task<IActionResult> RemoveLesson([FromRoute] Guid lessonId)
+    public async Task<IActionResult> RemoveLessonAsync([FromRoute] Guid lessonId)
     {
         bool result = await _lessonService.RemoveLesson(lessonId);
 
@@ -86,7 +86,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPut("/api/lessons/{lessonId}")]
-    public async Task<IActionResult> UpdateLesson([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
+    public async Task<IActionResult> UpdateLessonAsync([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
     {
         // Fluent validation on DTO:
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null

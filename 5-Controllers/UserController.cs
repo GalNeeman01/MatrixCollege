@@ -47,7 +47,7 @@ public class UserController : ControllerBase, IDisposable
 
     // Routes
     [HttpPost("/api/register")]
-    public async Task<IActionResult> Register([FromBody] CreateUserDto userDto)
+    public async Task<IActionResult> RegisterAsync([FromBody] CreateUserDto userDto)
     {
         // Fluent validation
         ValidationResult validationResult = _userValidator.Validate(userDto);
@@ -66,7 +66,7 @@ public class UserController : ControllerBase, IDisposable
     }
 
     [HttpPost("/api/login")]
-    public async Task<IActionResult> Login([FromBody] Credentials credentials)
+    public async Task<IActionResult> LoginAsync([FromBody] Credentials credentials)
     {
         // Fluent validation
         ValidationResult validationResult = _credentialsValidator.Validate(credentials);
@@ -86,7 +86,7 @@ public class UserController : ControllerBase, IDisposable
     // Progress routes
     [Authorize(Roles = "Student")]
     [HttpPost("/api/user-progress")]
-    public async Task<IActionResult> AddProgress([FromBody] ProgressDto progressDto)
+    public async Task<IActionResult> AddProgressAsync([FromBody] ProgressDto progressDto)
     {
         if (progressDto == null)
             return BadRequest(new RequestDataError());
@@ -104,14 +104,14 @@ public class UserController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Student")]
     [HttpGet("/api/user-progress/{userId}")]
-    public async Task<IActionResult> GetUserProgress([FromRoute] Guid userId)
+    public async Task<IActionResult> GetUserProgressAsync([FromRoute] Guid userId)
     {
         return Ok(await _progressService.GetUserProgress(userId));
     }
 
     [Authorize(Roles = "Student")]
     [HttpPost("/api/user-enroll")]
-    public async Task<IActionResult> AddEnrollment([FromBody] EnrollmentDto enrollmentDto)
+    public async Task<IActionResult> AddEnrollmentAsync([FromBody] EnrollmentDto enrollmentDto)
     {
         // In case of invalid Guid from request which would cause a crash
         if (enrollmentDto == null)
@@ -134,7 +134,7 @@ public class UserController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Student")]
     [HttpGet("/api/user-enrollments/{userId}")]
-    public async Task<IActionResult> GetUserEnrollments([FromRoute] Guid userId)
+    public async Task<IActionResult> GetUserEnrollmentsAsync([FromRoute] Guid userId)
     {
         if (!_userService.IsUserExists(userId))
             return NotFound(new ResourceNotFoundError(userId.ToString()));
@@ -149,7 +149,7 @@ public class UserController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Student")]
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]
-    public async Task<IActionResult> RemoveEnrollment([FromRoute] Guid enrollmentId)
+    public async Task<IActionResult> RemoveEnrollmentAsync([FromRoute] Guid enrollmentId)
     {
         bool result = await _enrollmentService.RemoveEnrollment(enrollmentId);
 

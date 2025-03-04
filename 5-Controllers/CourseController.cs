@@ -22,7 +22,7 @@ public class CourseController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPost("/api/courses")]
-    public async Task<IActionResult> CreateCourse([FromBody] CourseDto courseDto)
+    public async Task<IActionResult> CreateCourseAsync([FromBody] CourseDto courseDto)
     {
         // Fluent validation
         ValidationResult validationResult = _validator.Validate(courseDto);
@@ -40,7 +40,7 @@ public class CourseController : ControllerBase, IDisposable
     }
 
     [HttpGet("/api/courses")]
-    public async Task<IActionResult> GetAllCourses()
+    public async Task<IActionResult> GetAllCoursesAsync()
     {
         List<CourseDto> courses = await _courseService.GetAllCourses();
 
@@ -48,7 +48,7 @@ public class CourseController : ControllerBase, IDisposable
     }
 
     [HttpGet("/api/courses/{courseId}")]
-    public async Task<IActionResult> GetCourseById([FromRoute] Guid courseId)
+    public async Task<IActionResult> GetCourseByIdAsync([FromRoute] Guid courseId)
     {
         CourseDto? course = await _courseService.GetCourseById(courseId);
 
@@ -60,7 +60,7 @@ public class CourseController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/courses/{courseId}")]
-    public async Task<IActionResult> RemoveCourse([FromRoute] Guid courseId)
+    public async Task<IActionResult> RemoveCourseAsync([FromRoute] Guid courseId)
     {
         bool result = await _courseService.RemoveCourse(courseId);
 

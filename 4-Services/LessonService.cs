@@ -51,12 +51,12 @@ public class LessonService : IDisposable
         return dto;
     }
 
-    public List<LessonDto> GetLessonsByCourseId (Guid courseId)
+    public async Task<List<LessonDto>> GetLessonsByCourseId (Guid courseId)
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
-        _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToList()
-            .ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
+        List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
+        dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
 
         return dtoLessons;
     }
