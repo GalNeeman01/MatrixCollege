@@ -14,7 +14,7 @@ public class LessonService : IDisposable
         _mapper = mapper;
     }
 
-    public async Task<List<LessonDto>> GetAllLessons()
+    public async Task<List<LessonDto>> GetAllLessonsAsync()
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
@@ -25,7 +25,7 @@ public class LessonService : IDisposable
         return dtoLessons;
     }
 
-    public async Task<LessonDto?> GetLessonById(Guid id)
+    public async Task<LessonDto?> GetLessonByIdAsync(Guid id)
     {
         Lesson? lesson = await _db.Lessons.AsNoTracking().SingleOrDefaultAsync(lesson => lesson.Id == id);
 
@@ -39,7 +39,7 @@ public class LessonService : IDisposable
         return _db.Lessons.AsNoTracking().Any(lesson => lesson.Id == lessonId);
     }
 
-    public async Task<LessonDto> AddLesson(Lesson lesson)
+    public async Task<LessonDto> AddLessonAsync(Lesson lesson)
     {
         await _db.Lessons.AddAsync(lesson);
 
@@ -51,7 +51,7 @@ public class LessonService : IDisposable
         return dto;
     }
 
-    public async Task<List<LessonDto>> GetLessonsByCourseId (Guid courseId)
+    public async Task<List<LessonDto>> GetLessonsByCourseIdAsync (Guid courseId)
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
@@ -61,7 +61,7 @@ public class LessonService : IDisposable
         return dtoLessons;
     }
 
-    public async Task<bool> RemoveLesson(Guid lessonId)
+    public async Task<bool> RemoveLessonAsync(Guid lessonId)
     {
         Lesson? lesson = await _db.Lessons.AsNoTracking().SingleOrDefaultAsync(lesson => lesson.Id == lessonId);
 
@@ -75,7 +75,7 @@ public class LessonService : IDisposable
         return true;
     }
 
-    public async Task<LessonDto?> UpdateLesson(Lesson lesson)
+    public async Task<LessonDto?> UpdateLessonAsync(Lesson lesson)
     {
         if (!IsLessonExists(lesson.Id)) return null;
 

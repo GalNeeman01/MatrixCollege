@@ -34,7 +34,7 @@ public class CourseController : ControllerBase, IDisposable
         Course course = _mapper.Map<Course>(courseDto);
 
         // Retreive created courseDto
-        CourseDto createdCourse = await _courseService.CreateCourse(course);
+        CourseDto createdCourse = await _courseService.CreateCourseAsync(course);
 
         return Created("/", createdCourse);
     }
@@ -42,7 +42,7 @@ public class CourseController : ControllerBase, IDisposable
     [HttpGet("/api/courses")]
     public async Task<IActionResult> GetAllCoursesAsync()
     {
-        List<CourseDto> courses = await _courseService.GetAllCourses();
+        List<CourseDto> courses = await _courseService.GetAllCoursesAsync();
 
         return Ok(courses);
     }
@@ -50,7 +50,7 @@ public class CourseController : ControllerBase, IDisposable
     [HttpGet("/api/courses/{courseId}")]
     public async Task<IActionResult> GetCourseByIdAsync([FromRoute] Guid courseId)
     {
-        CourseDto? course = await _courseService.GetCourseById(courseId);
+        CourseDto? course = await _courseService.GetCourseByIdAsync(courseId);
 
         if (course == null)
             return NotFound(new ResourceNotFoundError(courseId.ToString()));
@@ -62,7 +62,7 @@ public class CourseController : ControllerBase, IDisposable
     [HttpDelete("/api/courses/{courseId}")]
     public async Task<IActionResult> RemoveCourseAsync([FromRoute] Guid courseId)
     {
-        bool result = await _courseService.RemoveCourse(courseId);
+        bool result = await _courseService.RemoveCourseAsync(courseId);
 
         // If no lesson with this id exists
         if (!result)

@@ -22,7 +22,7 @@ public class UserService : IDisposable
         
     }
 
-    public async Task<string> Register(User user)
+    public async Task<string> RegisterAsync(User user)
     {
         user.Email = user.Email.ToLower(); // Format email
         user.Password = Encryptor.GetHashed(user.Password); // Convert to hashed
@@ -37,7 +37,7 @@ public class UserService : IDisposable
         return JwtHelper.GetNewToken(user);
     }
 
-    public async Task<string?> Login(Credentials credentials)
+    public async Task<string?> LoginAsync(Credentials credentials)
     {
         credentials.Email = credentials.Email.ToLower(); // Format email
         credentials.Password = Encryptor.GetHashed(credentials.Password); // Convert to hashed
@@ -55,7 +55,7 @@ public class UserService : IDisposable
         return _db.Users.AsNoTracking().Any(user => user.Id == id);
     }
 
-    public async Task<bool> IsEmailUnique (string email)
+    public async Task<bool> IsEmailUniqueAsync (string email)
     {
         return await _db.Users.AsNoTracking().AnyAsync(user => user.Email == email.ToLower()) == false;
     }

@@ -36,8 +36,8 @@ public class MatrixCollegeContext : DbContext
 
         // Seed default roles
         modelBuilder.Entity<User>().HasData( // Must add hardcoded guid's due to EF errors popping up otherwise
-            new User { Id = Guid.Parse("0759b274-5fc0-4119-8bd5-36ef8ff7f291"), Name = "admin", Email = "admin@gmail.com", Password = Encryptor.GetHashed("admin"), RoleId = 1 },
-            new User { Id = Guid.Parse("6ddc0899-88d6-4a80-929e-b910683656a2"), Name = "student", Email = "student@gmail.com", Password = Encryptor.GetHashed("student"), RoleId = 2 },
+            new User { Id = Guid.Parse("0759b274-5fc0-4119-8bd5-36ef8ff7f291"), Name = "admin", Email = "admin@gmail.com", Password = Encryptor.GetHashed("adminadmin"), RoleId = 1 },
+            new User { Id = Guid.Parse("6ddc0899-88d6-4a80-929e-b910683656a2"), Name = "student", Email = "student@gmail.com", Password = Encryptor.GetHashed("studentstudent"), RoleId = 2 },
             new User { Id = Guid.Parse("c485947c-2ad4-4818-ab26-cb4e45e33136"), Name = "professor", Email = "professor@gmail.com", Password = Encryptor.GetHashed("professor"), RoleId = 3 }
         );
     }

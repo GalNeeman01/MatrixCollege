@@ -15,7 +15,7 @@ public class CourseService : IDisposable
         _mapper = mapper;
     }
 
-    public async Task<CourseDto> CreateCourse(Course course)
+    public async Task<CourseDto> CreateCourseAsync(Course course)
     {
         course.CreatedAt = DateTime.Now; // Set the current time
 
@@ -28,7 +28,7 @@ public class CourseService : IDisposable
         return courseDto;
     }
 
-    public async Task<List<CourseDto>> GetAllCourses()
+    public async Task<List<CourseDto>> GetAllCoursesAsync()
     {
         // Dtos to return
         List<CourseDto> courses = new List<CourseDto>();
@@ -44,7 +44,7 @@ public class CourseService : IDisposable
         return courses;
     }
 
-    public async Task<CourseDto?> GetCourseById(Guid courseId)
+    public async Task<CourseDto?> GetCourseByIdAsync(Guid courseId)
     {
         Course? dbCourse = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
 
@@ -59,7 +59,7 @@ public class CourseService : IDisposable
         return _db.Courses.AsNoTracking().Any(course => course.Id == courseId);
     }
 
-    public async Task<bool> RemoveCourse(Guid courseId)
+    public async Task<bool> RemoveCourseAsync(Guid courseId)
     {
         Course? course = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
 

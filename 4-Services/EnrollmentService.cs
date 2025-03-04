@@ -14,7 +14,7 @@ public class EnrollmentService : IDisposable
         _mapper = mapper;
     }
 
-    public async Task<EnrollmentDto> Enroll(Enrollment enrollment)
+    public async Task<EnrollmentDto> EnrollAsync(Enrollment enrollment)
     {
         DateTime now = DateTime.Now; // Store current time
 
@@ -28,7 +28,7 @@ public class EnrollmentService : IDisposable
         return dto;
     }
 
-    public async Task<List<EnrollmentDto>> GetEnrollmentsByUserId(Guid userId)
+    public async Task<List<EnrollmentDto>> GetEnrollmentsByUserIdAsync(Guid userId)
     {
         List<EnrollmentDto> dtoEnrollments = new List<EnrollmentDto>();
 
@@ -38,7 +38,7 @@ public class EnrollmentService : IDisposable
         return dtoEnrollments;
     }
 
-    public async Task<bool> RemoveEnrollment(Guid id)
+    public async Task<bool> RemoveEnrollmentAsync(Guid id)
     {
         Enrollment? enrollment = await _db.Enrollments.SingleOrDefaultAsync(e => e.Id == id);
 

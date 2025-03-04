@@ -191,7 +191,7 @@ namespace Matrix.Migrations
                             Id = new Guid("0759b274-5fc0-4119-8bd5-36ef8ff7f291"),
                             Email = "admin@gmail.com",
                             Name = "admin",
-                            Password = "admin",
+                            Password = "Y/os4yrc5tR1oVNOpdkDxdA+ank9UshlpNVM/FnIT2sjUfXknA8r+lEdDMJyKJ396bPWQaasrlXpp2ebkQPR0Q==",
                             RoleId = 1
                         },
                         new
@@ -199,7 +199,7 @@ namespace Matrix.Migrations
                             Id = new Guid("6ddc0899-88d6-4a80-929e-b910683656a2"),
                             Email = "student@gmail.com",
                             Name = "student",
-                            Password = "student",
+                            Password = "pYXqaG8L822t8pu3NfWVDVnOnfZnjwLsE+LCzADjLEOBXXu/BUkGTCm5hkOnDYuWYLqk8whpavLJVJqazraWAA==",
                             RoleId = 2
                         },
                         new
@@ -207,7 +207,7 @@ namespace Matrix.Migrations
                             Id = new Guid("c485947c-2ad4-4818-ab26-cb4e45e33136"),
                             Email = "professor@gmail.com",
                             Name = "professor",
-                            Password = "professor",
+                            Password = "2UERjyrwY2rtjjLRG2RAjZZ/fHCRW7jyQudtRLXdGcYYfrJhPm2H0DV9TQMFDUjIfhpSFkwFy46hXyogXyYntA==",
                             RoleId = 3
                         });
                 });

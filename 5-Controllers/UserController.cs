@@ -55,13 +55,13 @@ public class UserController : ControllerBase, IDisposable
         if (!validationResult.IsValid)
              return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        if (!(await _userService.IsEmailUnique(userDto.Email)))
+        if (!(await _userService.IsEmailUniqueAsync(userDto.Email)))
             return BadRequest(new ValidationError<string>("Email is already taken."));
 
         // Map to User object
         User user = _mapper.Map<User>(userDto);
 
-        string token = await _userService.Register(user);
+        string token = await _userService.RegisterAsync(user);
         return Created("/", token);
     }
 
@@ -75,7 +75,7 @@ public class UserController : ControllerBase, IDisposable
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
 
-        string? token = await _userService.Login(credentials);
+        string? token = await _userService.LoginAsync(credentials);
 
         if (token == null)
             return BadRequest(new ValidationError<string>("Incorrect email or password."));
@@ -97,7 +97,7 @@ public class UserController : ControllerBase, IDisposable
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         Progress progress = _mapper.Map<Progress>(progressDto);
-        ProgressDto resultProgress = await _progressService.AddProgress(progress);
+        ProgressDto resultProgress = await _progressService.AddProgressAsync(progress);
 
         return Created("/", resultProgress);
     }
@@ -106,7 +106,7 @@ public class UserController : ControllerBase, IDisposable
     [HttpGet("/api/user-progress/{userId}")]
     public async Task<IActionResult> GetUserProgressAsync([FromRoute] Guid userId)
     {
-        return Ok(await _progressService.GetUserProgress(userId));
+        return Ok(await _progressService.GetUserProgressAsync(userId));
     }
 
     [Authorize(Roles = "Student")]
@@ -127,7 +127,7 @@ public class UserController : ControllerBase, IDisposable
         Enrollment enrollment = _mapper.Map<Enrollment>(enrollmentDto);
 
         // Call to service
-        EnrollmentDto resultEnrollment = await _enrollmentService.Enroll(enrollment);
+        EnrollmentDto resultEnrollment = await _enrollmentService.EnrollAsync(enrollment);
 
         return Created("/", resultEnrollment);
     }
@@ -139,7 +139,7 @@ public class UserController : ControllerBase, IDisposable
         if (!_userService.IsUserExists(userId))
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
-        List<EnrollmentDto> dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserId(userId);
+        List<EnrollmentDto> dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserIdAsync(userId);
 
         if (dtoEnrollments == null)
             return NotFound(new ResourceNotFoundError(userId.ToString()));
@@ -151,7 +151,7 @@ public class UserController : ControllerBase, IDisposable
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]
     public async Task<IActionResult> RemoveEnrollmentAsync([FromRoute] Guid enrollmentId)
     {
-        bool result = await _enrollmentService.RemoveEnrollment(enrollmentId);
+        bool result = await _enrollmentService.RemoveEnrollmentAsync(enrollmentId);
 
         if (!result)
             return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
@@ -163,5 +163,7 @@ public class UserController : ControllerBase, IDisposable
     public void Dispose()
     {
         _userService.Dispose();
+        _enrollmentService.Dispose();
+        _progressService.Dispose();
     }
 }

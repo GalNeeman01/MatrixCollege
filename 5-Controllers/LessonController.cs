@@ -37,7 +37,7 @@ public class LessonController : ControllerBase, IDisposable
         Lesson lesson = _mapper.Map<Lesson>(lessonDto);
 
         // Call to service
-        LessonDto dbLesson = await _lessonService.AddLesson(lesson);
+        LessonDto dbLesson = await _lessonService.AddLessonAsync(lesson);
 
         return Created("/", dbLesson);
     }
@@ -46,7 +46,7 @@ public class LessonController : ControllerBase, IDisposable
     [HttpGet("/api/lessons")]
     public async Task<IActionResult> GetAllLessonsAsync()
     {
-        List<LessonDto> lessons = await _lessonService.GetAllLessons();
+        List<LessonDto> lessons = await _lessonService.GetAllLessonsAsync();
 
         return Ok(lessons);
     }
@@ -55,7 +55,7 @@ public class LessonController : ControllerBase, IDisposable
     [HttpGet("/api/lessons/{lessonId}")]
     public async Task<IActionResult> GetLessonByIdAsync([FromRoute] Guid lessonId)
     {
-        LessonDto? lesson = await _lessonService.GetLessonById(lessonId);
+        LessonDto? lesson = await _lessonService.GetLessonByIdAsync(lessonId);
 
         // If no lesson with given id exists in DB
         if (lesson == null)
@@ -68,14 +68,14 @@ public class LessonController : ControllerBase, IDisposable
     [HttpGet("/api/lessons-by-course/{courseId}")]
     public async Task<IActionResult> GetLessonsByCourseIdAsync([FromRoute] Guid courseId)
     {
-        return Ok(await _lessonService.GetLessonsByCourseId(courseId));
+        return Ok(await _lessonService.GetLessonsByCourseIdAsync(courseId));
     }
 
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/lessons/{lessonId}")]
     public async Task<IActionResult> RemoveLessonAsync([FromRoute] Guid lessonId)
     {
-        bool result = await _lessonService.RemoveLesson(lessonId);
+        bool result = await _lessonService.RemoveLessonAsync(lessonId);
 
         // If no lesson with this id exists
         if (!result)
@@ -103,7 +103,7 @@ public class LessonController : ControllerBase, IDisposable
         lesson.Id = lessonId;
 
         // Call to service
-        LessonDto? resultLessonDto = await _lessonService.UpdateLesson(lesson);
+        LessonDto? resultLessonDto = await _lessonService.UpdateLessonAsync(lesson);
 
         if (resultLessonDto == null) return NotFound(new ResourceNotFoundError(lessonId.ToString()));
 

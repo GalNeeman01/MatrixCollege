@@ -14,7 +14,7 @@ public class ProgressService : IDisposable
         _mapper = mapper;
     }
 
-    public async Task<List<ProgressDto>> GetUserProgress(Guid userId)
+    public async Task<List<ProgressDto>> GetUserProgressAsync(Guid userId)
     {
         List<ProgressDto> dtoProgresses = new List<ProgressDto>();
 
@@ -25,7 +25,7 @@ public class ProgressService : IDisposable
         return dtoProgresses;
     }
 
-    public async Task<ProgressDto> AddProgress(Progress progress)
+    public async Task<ProgressDto> AddProgressAsync(Progress progress)
     {
         DateTime now = DateTime.Now;
         progress.WatchedAt = now;
