@@ -30,7 +30,7 @@ public class LessonController : ControllerBase, IDisposable
         if (lessonDto == null)
             return BadRequest(new RequestDataError());
 
-        if (!_courseService.IsCourseExists(lessonDto.CourseId))
+        if (await _courseService.IsCourseExistsAsync(lessonDto.CourseId) == false)
             return BadRequest(new ResourceNotFoundError(lessonDto.CourseId.ToString()));
 
         ValidationResult validationResult = _validator.Validate(lessonDto);

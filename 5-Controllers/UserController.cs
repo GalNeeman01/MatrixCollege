@@ -129,7 +129,7 @@ public class UserController : ControllerBase, IDisposable
         if (enrollmentDto == null)
             return BadRequest(new RequestDataError());
 
-        if (!_courseService.IsCourseExists(enrollmentDto.CourseId))
+        if (await _courseService.IsCourseExistsAsync(enrollmentDto.CourseId) == false)
             return BadRequest(new ResourceNotFoundError(enrollmentDto.CourseId.ToString()));
 
         if(!_userService.IsUserExists(enrollmentDto.UserId))

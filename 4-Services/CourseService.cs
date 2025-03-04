@@ -54,9 +54,9 @@ public class CourseService : IDisposable
     }
 
     // Return whether a course exists in the DB
-    public bool IsCourseExists(Guid courseId)
+    public async Task<bool> IsCourseExistsAsync(Guid courseId)
     {
-        return _db.Courses.AsNoTracking().Any(course => course.Id == courseId);
+        return await _db.Courses.AsNoTracking().AnyAsync(course => course.Id == courseId);
     }
 
     public async Task<bool> RemoveCourseAsync(Guid courseId)
