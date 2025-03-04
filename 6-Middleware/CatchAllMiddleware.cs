@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Serilog;
 
 namespace Matrix;
 
@@ -13,6 +14,8 @@ public class CatchAllMiddleware : IExceptionFilter
         result.StatusCode = StatusCodes.Status500InternalServerError;
         context.Result = result;
         context.ExceptionHandled = true;
+        // Log to serilog
+        Log.Error("ERROR - Internal Server Error: '" + message + "'");
     }
 
     private string GetInnerMessage(Exception ex)
