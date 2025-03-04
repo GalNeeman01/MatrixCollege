@@ -10,12 +10,12 @@ namespace Matrix;
 public class UserController : ControllerBase, IDisposable
 {
     // DI
-        // Services
+    // Services
     private UserService _userService;
     private EnrollmentService _enrollmentService;
     private ProgressService _progressService;
 
-        // Validators
+    // Validators
     private IValidator<CreateUserDto> _userValidator;
     private IValidator<ProgressDto> _progressValidator;
     private IValidator<EnrollmentDto> _enrollmentValidator;
@@ -54,7 +54,7 @@ public class UserController : ControllerBase, IDisposable
 
         if (!validationResult.IsValid)
         {
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
         }
 
         // Map to User object
@@ -71,13 +71,13 @@ public class UserController : ControllerBase, IDisposable
         ValidationResult validationResult = _credentialsValidator.Validate(credentials);
 
         if (!validationResult.IsValid)
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
 
         string? token = _userService.Login(credentials);
 
         if (token == null)
-            return BadRequest(new ValidationError("Incorrect email or password."));
+            return BadRequest(new ValidationError<string>("Incorrect email or password."));
 
         return Ok(token);
     }
@@ -93,7 +93,7 @@ public class UserController : ControllerBase, IDisposable
         ValidationResult validationResult = _progressValidator.Validate(progressDto);
 
         if (!validationResult.IsValid)
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         Progress progress = _mapper.Map<Progress>(progressDto);
         ProgressDto resultProgress = _progressService.AddProgress(progress);
@@ -121,7 +121,7 @@ public class UserController : ControllerBase, IDisposable
         ValidationResult validationResult = _enrollmentValidator.Validate(enrollmentDto);
 
         if (!validationResult.IsValid)
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         // Map to Enrollment
         Enrollment enrollment = _mapper.Map<Enrollment>(enrollmentDto);

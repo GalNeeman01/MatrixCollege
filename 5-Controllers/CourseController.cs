@@ -29,7 +29,7 @@ public class CourseController : ControllerBase, IDisposable
 
         if (!validationResult.IsValid)
         {
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
         }
 
         // Map Dto to Course object

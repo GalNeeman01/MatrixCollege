@@ -30,14 +30,11 @@ public class UserValidator : AbstractValidator<CreateUserDto>, IDisposable
     }
 
     // Custom validations
-
     // Check if email is unique
     private bool UniqueEmail(string email)
     {
         if (email == null)
             return false;
-
-        bool b = _userService.IsEmailUnique(email);
 
         return _userService.IsEmailUnique(email);
     }

@@ -2,27 +2,33 @@
 
 namespace Matrix;
 
-public abstract class BaseError
+public abstract class BaseError<T>
 {
-    public string Message { get; set; } = null!;
+    public T Errors { get; set; }
 
-    public BaseError(string message)
+    public BaseError(T message)
     {
-        Message = message;
+        Errors = message;
     }
 }
 
-public class ResourceNotFoundError : BaseError
+public class ResourceNotFoundError : BaseError<string>
 {
     public ResourceNotFoundError(string resourceId) : base($"No resource with the id of {resourceId} was found.") { }
 }
 
-public class ValidationError : BaseError
+public class ValidationError<T> : BaseError<T>
 {
-    public ValidationError(string message) : base(message) { }
+    public ValidationError(T errors) : base(errors) { }
 }
 
-public class RequestDataError : BaseError
+public class RequestDataError : BaseError<string>
 {
     public RequestDataError() : base("The request data is in invalid.") { }
 }
+
+public class InternalServerError<T> : BaseError<T>
+{
+    public InternalServerError(T errors) : base(errors) { }
+}
+

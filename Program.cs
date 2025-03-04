@@ -38,6 +38,9 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ProgressValidator>();
 
+        // Add global filters
+        builder.Services.AddMvc(options => options.Filters.Add<CatchAllMiddleware>());
+
         // Ignore EF ModelState input validation (To allow Fluent to work)
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {

@@ -31,7 +31,7 @@ public class LessonController : ControllerBase, IDisposable
         ValidationResult validationResult = _validator.Validate(lessonDto);
 
         if (!validationResult.IsValid)
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         // Map to Lesson
         Lesson lesson = _mapper.Map<Lesson>(lessonDto);
@@ -96,7 +96,7 @@ public class LessonController : ControllerBase, IDisposable
         ValidationResult validationResult = _validator.Validate(lessonDto);
 
         if (!validationResult.IsValid)
-            return BadRequest(new ValidationError(string.Join(" ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         // Map to Lesson object
         Lesson lesson = _mapper.Map<Lesson>(lessonDto);
