@@ -20,7 +20,7 @@ public class LessonController : ControllerBase, IDisposable
         _mapper = mapper;
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor")]
     [HttpPost("/api/lessons")]
     public IActionResult AddLesson([FromBody] LessonDto lessonDto)
     {
@@ -42,7 +42,7 @@ public class LessonController : ControllerBase, IDisposable
         return Created("/", dbLesson);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons")]
     public IActionResult GetAllLessons()
     {
@@ -51,7 +51,7 @@ public class LessonController : ControllerBase, IDisposable
         return Ok(lessons);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons/{lessonId}")]
     public IActionResult GetLessonById([FromRoute] Guid lessonId)
     {
@@ -64,14 +64,14 @@ public class LessonController : ControllerBase, IDisposable
         return Ok(lesson);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor,Student")]
     [HttpGet("/api/lessons-by-course/{courseId}")]
     public IActionResult GetLessonsByCourseId([FromRoute] Guid courseId)
     {
         return Ok(_lessonService.GetLessonsByCourseId(courseId));
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor")]
     [HttpDelete("/api/lessons/{lessonId}")]
     public IActionResult RemoveLesson([FromRoute] Guid lessonId)
     {
@@ -84,7 +84,7 @@ public class LessonController : ControllerBase, IDisposable
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor")]
     [HttpPut("/api/lessons/{lessonId}")]
     public IActionResult UpdateLesson([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
     {

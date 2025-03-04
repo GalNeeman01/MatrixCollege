@@ -20,7 +20,7 @@ public class CourseController : ControllerBase, IDisposable
         _mapper = mapper;
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor")]
     [HttpPost("/api/courses")]
     public IActionResult CreateCourse([FromBody] CourseDto courseDto)
     {
@@ -60,7 +60,7 @@ public class CourseController : ControllerBase, IDisposable
         return Ok(course);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Professor")]
     [HttpDelete("/api/courses/{courseId}")]
     public IActionResult RemoveCourse([FromRoute] Guid courseId)
     {

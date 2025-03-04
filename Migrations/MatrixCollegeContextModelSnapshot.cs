@@ -119,6 +119,40 @@ namespace Matrix.Migrations
                     b.ToTable("Progresses");
                 });
 
+            modelBuilder.Entity("Matrix.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Professor"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Student"
+                        });
+                });
+
             modelBuilder.Entity("Matrix.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -127,8 +161,7 @@ namespace Matrix.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(320)
-                        .HasColumnType("nvarchar(320)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -140,12 +173,43 @@ namespace Matrix.Migrations
                         .HasMaxLength(800)
                         .HasColumnType("nvarchar(800)");
 
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0759b274-5fc0-4119-8bd5-36ef8ff7f291"),
+                            Email = "admin@gmail.com",
+                            Name = "admin",
+                            Password = "admin",
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("6ddc0899-88d6-4a80-929e-b910683656a2"),
+                            Email = "student@gmail.com",
+                            Name = "student",
+                            Password = "student",
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("c485947c-2ad4-4818-ab26-cb4e45e33136"),
+                            Email = "professor@gmail.com",
+                            Name = "professor",
+                            Password = "professor",
+                            RoleId = 3
+                        });
                 });
 
             modelBuilder.Entity("Matrix.Enrollment", b =>
@@ -197,11 +261,27 @@ namespace Matrix.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Matrix.User", b =>
+                {
+                    b.HasOne("Matrix.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Matrix.Course", b =>
                 {
                     b.Navigation("Enrollments");
 
                     b.Navigation("Lessons");
+                });
+
+            modelBuilder.Entity("Matrix.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Matrix.User", b =>

@@ -19,6 +19,13 @@ public class User
     public string Email { get; set; } = null!;
 
     [Required]
+    public int RoleId { get; set; }
+
+    [InverseProperty("Users")]
+    [JsonIgnore]
+    public Role Role { get; set; } = null!;
+
+    [Required]
     [MinLength(8)]
     [MaxLength(800)]
     public string Password { get; set; } = null!;

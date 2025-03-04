@@ -83,7 +83,7 @@ public class UserController : ControllerBase, IDisposable
     }
 
     // Progress routes
-    [Authorize]
+    [Authorize(Roles = "Student")]
     [HttpPost("/api/user-progress")]
     public IActionResult AddProgress([FromBody] ProgressDto progressDto)
     {
@@ -101,15 +101,14 @@ public class UserController : ControllerBase, IDisposable
         return Created("/", resultProgress);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Student")]
     [HttpGet("/api/user-progress/{userId}")]
     public IActionResult GetUserProgress([FromRoute] Guid userId)
     {
         return Ok(_progressService.GetUserProgress(userId));
     }
 
-    [Authorize]
-    // Enrollment routes
+    [Authorize(Roles = "Student")]
     [HttpPost("/api/user-enroll")]
     public IActionResult AddEnrollment([FromBody] EnrollmentDto enrollmentDto)
     {
@@ -132,7 +131,7 @@ public class UserController : ControllerBase, IDisposable
         return Created("/", resultEnrollment);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Student")]
     [HttpGet("/api/user-enrollments/{userId}")]
     public IActionResult GetUserEnrollments([FromRoute] Guid userId)
     {
@@ -147,7 +146,7 @@ public class UserController : ControllerBase, IDisposable
         return Ok(dtoEnrollments);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Student")]
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]
     public IActionResult RemoveEnrollment([FromRoute] Guid enrollmentId)
     {

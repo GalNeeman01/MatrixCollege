@@ -53,8 +53,9 @@ public class Program
 
         var app = builder.Build();
 
+        // Middleware
         app.UseSerilogRequestLogging();
-
+        app.UseAuthorization();
         app.MapControllers();
 
         app.Run();

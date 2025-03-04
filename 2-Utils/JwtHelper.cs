@@ -13,14 +13,16 @@ public static class JwtHelper
     private static readonly SymmetricSecurityKey _symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppConfig.JWTKey)); // Must be minimum 16 char string.
 
     // Get a new JWT token for a given username:
-    public static string GetNewToken(UserResponseDto userDto)
+    public static string GetNewToken(User user)
     {
         // Create JSON:
-        string json = JsonSerializer.Serialize(userDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var slimUser = new { user.Id, user.Email, user.RoleId, Role = user.Role.Name };
+        string json = JsonSerializer.Serialize(slimUser, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
         // Claims:
         List<Claim> claims = new List<Claim> { 
             new Claim(ClaimTypes.Actor, json),
+            new Claim(ClaimTypes.Role, user.Role.Name)
         };
 
         // Descriptor: 
