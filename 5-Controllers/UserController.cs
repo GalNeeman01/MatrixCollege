@@ -14,6 +14,8 @@ public class UserController : ControllerBase, IDisposable
     private UserService _userService;
     private EnrollmentService _enrollmentService;
     private ProgressService _progressService;
+    private CourseService _courseService;
+    private LessonService _lessonService;
 
     // Validators
     private IValidator<CreateUserDto> _userValidator;
@@ -29,6 +31,8 @@ public class UserController : ControllerBase, IDisposable
         UserService userService, 
         EnrollmentService enrollmentService,
         ProgressService progressService,
+        CourseService courseService,
+        LessonService lessonService,
         IValidator<CreateUserDto> userValidator, 
         IValidator<ProgressDto> progressValidator, 
         IValidator<EnrollmentDto> enrollmentValidator,
@@ -36,6 +40,8 @@ public class UserController : ControllerBase, IDisposable
         IMapper mapper)
     {
         _userService = userService;
+        _courseService = courseService;
+        _lessonService = lessonService;
         _userValidator = userValidator;
         _progressValidator = progressValidator;
         _enrollmentValidator = enrollmentValidator;
@@ -91,6 +97,12 @@ public class UserController : ControllerBase, IDisposable
         if (progressDto == null)
             return BadRequest(new RequestDataError());
 
+        if (!_userService.IsUserExists(progressDto.UserId))
+            return BadRequest(new ResourceNotFoundError(progressDto.UserId.ToString()));
+
+        if (!_lessonService.IsLessonExists(progressDto.LessonId))
+            return BadRequest(new ResourceNotFoundError(progressDto.LessonId.ToString()));
+
         ValidationResult validationResult = _progressValidator.Validate(progressDto);
 
         if (!validationResult.IsValid)
@@ -116,6 +128,12 @@ public class UserController : ControllerBase, IDisposable
         // In case of invalid Guid from request which would cause a crash
         if (enrollmentDto == null)
             return BadRequest(new RequestDataError());
+
+        if (!_courseService.IsCourseExists(enrollmentDto.CourseId))
+            return BadRequest(new ResourceNotFoundError(enrollmentDto.CourseId.ToString()));
+
+        if(!_userService.IsUserExists(enrollmentDto.UserId))
+            return BadRequest(new ResourceNotFoundError(enrollmentDto.UserId.ToString()));
 
         // Fluent validation
         ValidationResult validationResult = _enrollmentValidator.Validate(enrollmentDto);
@@ -162,6 +180,10 @@ public class UserController : ControllerBase, IDisposable
     // Dispose of unused resources
     public void Dispose()
     {
+        _courseService.Dispose();
+        _enrollmentService.Dispose();
+        _progressService.Dispose();
         _userService.Dispose();
+        _lessonService.Dispose();
     }
 }

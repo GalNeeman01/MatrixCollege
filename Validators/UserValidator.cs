@@ -4,7 +4,7 @@ namespace Matrix;
 
 public class UserValidator : AbstractValidator<CreateUserDto>
 {
-    public UserValidator(UserService userService)
+    public UserValidator()
     {
         // required, min - 8, max - 50
         RuleFor(user => user.Name).NotNull().WithMessage("Name is a required field.")
