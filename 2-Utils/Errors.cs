@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Matrix;
+﻿namespace Matrix;
 
 public abstract class BaseError<T>
 {

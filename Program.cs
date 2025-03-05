@@ -38,6 +38,18 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ProgressValidator>();
 
+        // Add CORS Policy
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll",
+                policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+        });
+
         // Add global filters
         builder.Services.AddMvc(options => options.Filters.Add<CatchAllMiddleware>());
 
@@ -52,6 +64,9 @@ public class Program
         builder.Services.AddControllers();
 
         var app = builder.Build();
+
+        // Apply CORS
+        app.UseCors("AllowAll");
 
         // Middleware
         app.UseSerilogRequestLogging();
