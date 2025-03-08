@@ -15,13 +15,16 @@ public static class JwtHelper
     // Get a new JWT token for a given username:
     public static string GetNewToken(User user)
     {
-        // Create JSON:
-        var slimUser = new { user.Id, user.Email, user.RoleId, Role = user.Role.Name };
-        string json = JsonSerializer.Serialize(slimUser, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var userObject = new Dictionary<string, object>
+        {
+            { "id", user.Id.ToString() },
+            { "name", user.Name },
+            { "email", user.Email },
+            { "role", user.Role.Name }
+        };
 
         // Claims:
-        List<Claim> claims = new List<Claim> { 
-            new Claim(ClaimTypes.Actor, json),
+        List<Claim> claims = new List<Claim> {
             new Claim(ClaimTypes.Role, user.Role.Name)
         };
 
@@ -30,7 +33,11 @@ public static class JwtHelper
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(AppConfig.JWTExpiresHours),
-            SigningCredentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha512)
+            SigningCredentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha512),
+            Claims = new Dictionary<string, object>
+            {
+                { "user", userObject }
+            }
         };
 
         // Return token: 

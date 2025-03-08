@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Serilog;
+using System.Data;
 
 namespace Matrix;
 
@@ -40,15 +43,47 @@ public class EnrollmentService : IDisposable
 
     public async Task<bool> RemoveEnrollmentAsync(Guid id)
     {
-        Enrollment? enrollment = await _db.Enrollments.SingleOrDefaultAsync(e => e.Id == id);
+        await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
 
-        if (enrollment == null)
+        try
+        {
+            Enrollment? enrollment = await _db.Enrollments.SingleOrDefaultAsync(e => e.Id == id);
+
+            if (enrollment == null)
+                return false;
+
+            // Retrieve enrolled course
+            Course? dbCourse = await _db.Courses.SingleOrDefaultAsync(c => c.Id == enrollment.CourseId);
+
+            if (dbCourse != null)
+            {
+                // Retrieve enrolled lessons
+                List<Lesson> dbLessons = await _db.Lessons.Where(lesson => lesson.CourseId == enrollment.CourseId).ToListAsync();
+
+                // Retreive progresses with matching enrollment user
+                List<Progress> dbProgresses = await _db.Progresses.Where(p => p.UserId == enrollment.UserId).ToListAsync();
+
+                // Filter progresses to only contain matches with lessons
+                List<Guid> lessonsId = dbLessons.Select(l => l.Id).ToList();
+                List<Progress> progresses = dbProgresses.Where(p => lessonsId.Contains(p.LessonId)).ToList();
+
+                _db.Progresses.RemoveRange(progresses);
+            }
+
+            _db.Enrollments.Remove(enrollment);
+            await _db.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            // Rollback and log error
+            await transaction.RollbackAsync();
+            Log.Error(e.Message);
+
             return false;
-
-        _db.Enrollments.Remove(enrollment);
-        await _db.SaveChangesAsync();
-
-        return true;
+        }
     }
 
     public void Dispose()

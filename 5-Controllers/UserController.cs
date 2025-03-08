@@ -59,7 +59,7 @@ public class UserController : ControllerBase, IDisposable
         ValidationResult validationResult = _userValidator.Validate(userDto);
 
         if (!validationResult.IsValid)
-             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
         if (!(await _userService.IsEmailUniqueAsync(userDto.Email)))
             return BadRequest(new ValidationError<string>("Email is already taken."));
@@ -68,6 +68,8 @@ public class UserController : ControllerBase, IDisposable
         User user = _mapper.Map<User>(userDto);
 
         string token = await _userService.RegisterAsync(user);
+
+        // Return an object so Front-End can parse it as json
         return Created("/", token);
     }
 
@@ -86,6 +88,7 @@ public class UserController : ControllerBase, IDisposable
         if (token == null)
             return BadRequest(new ValidationError<string>("Incorrect email or password."));
 
+        // Return an object so Front-End can parse it as json
         return Ok(token);
     }
 
