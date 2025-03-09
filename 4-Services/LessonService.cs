@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Matrix.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
@@ -57,6 +58,16 @@ public class LessonService : IDisposable
 
         List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
         dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
+
+        return dtoLessons;
+    }
+
+    public async Task<List<LessonInfoDto>> GetLessonsInfoByCourseIdAsync(Guid courseId)
+    {
+        List<LessonInfoDto> dtoLessons = new List<LessonInfoDto>();
+
+        List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
+        dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonInfoDto>(lesson)));
 
         return dtoLessons;
     }

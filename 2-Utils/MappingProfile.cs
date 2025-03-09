@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Matrix.DTOs;
 
 namespace Matrix;
 
@@ -23,5 +24,8 @@ public class MappingProfile : Profile
 
         CreateMap<User, UserResponseDto>();
         CreateMap<UserResponseDto, User>();
+
+        CreateMap<Lesson, LessonInfoDto>();
+        CreateMap<LessonInfoDto, Lesson>();
     }
 }

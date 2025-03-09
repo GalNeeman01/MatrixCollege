@@ -76,6 +76,12 @@ public class LessonController : ControllerBase, IDisposable
         return Ok(await _lessonService.GetLessonsByCourseIdAsync(courseId));
     }
 
+    [HttpGet("/api/lessons-info-by-course/{courseId}")]
+    public async Task<IActionResult> GetLessonsInfoByCourseIdAsync([FromRoute] Guid courseId)
+    {
+        return Ok(await _lessonService.GetLessonsInfoByCourseIdAsync(courseId));
+    }
+
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/lessons/{lessonId}")]
     public async Task<IActionResult> RemoveLessonAsync([FromRoute] Guid lessonId)
