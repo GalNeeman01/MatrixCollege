@@ -71,6 +71,32 @@ public class CourseController : ControllerBase, IDisposable
         return NoContent();
     }
 
+    [Authorize(Roles = "Professor")]
+    [HttpPut("/api/courses")]
+    public async Task<IActionResult> UpdateCourseAsync([FromBody] CourseDto courseDto)
+    {
+        // Fluent validation on DTO:
+        if (courseDto == null)
+            return BadRequest(new RequestDataError());
+
+        ValidationResult validationResult = _validator.Validate(courseDto);
+
+        if (!validationResult.IsValid)
+            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
+
+        // Map to Course object
+        Course course = _mapper.Map<Course>(courseDto);
+
+        CourseDto? result = await _courseService.UpdateCourseAsync(course);
+
+        if (result == null)
+            return BadRequest(new ResourceNotFoundError(courseDto.Id.ToString()));
+
+        return NoContent();
+    }
+
+
+
     public void Dispose()
     {
         _courseService.Dispose();

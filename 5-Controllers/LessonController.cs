@@ -24,27 +24,30 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPost("/api/lessons")]
-    public async Task<IActionResult> AddLessonAsync([FromBody] LessonDto lessonDto)
+    public async Task<IActionResult> AddLessonsAsync([FromBody] List<LessonDto> lessonDtos)
     {
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
-        if (lessonDto == null)
+        if (lessonDtos == null || lessonDtos.Count == 0) // No data recieved
             return BadRequest(new RequestDataError());
 
-        if (await _courseService.IsCourseExistsAsync(lessonDto.CourseId) == false)
-            return BadRequest(new ResourceNotFoundError(lessonDto.CourseId.ToString()));
+        List<Lesson> lessons = new List<Lesson>();
 
-        ValidationResult validationResult = _validator.Validate(lessonDto);
+        // Validate each item to add
+        foreach (LessonDto lessonDto in lessonDtos)
+        {
+            ValidationResult validationResult = _validator.Validate(lessonDto);
 
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
+            if (!validationResult.IsValid)
+                return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        // Map to Lesson
-        Lesson lesson = _mapper.Map<Lesson>(lessonDto);
+            lessons.Add(_mapper.Map<Lesson>(lessonDto)); // Save to actual lessons list
+        }
 
-        // Call to service
-        LessonDto dbLesson = await _lessonService.AddLessonAsync(lesson);
+        // If all lessons are validated, call DB to add them
+        foreach (Lesson lesson in lessons)
+            await _lessonService.AddLessonAsync(lesson);
 
-        return Created("/", dbLesson);
+        return Created("/", lessons);
     }
 
     [Authorize(Roles = "Professor,Student")]
@@ -83,42 +86,53 @@ public class LessonController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor")]
-    [HttpDelete("/api/lessons/{lessonId}")]
-    public async Task<IActionResult> RemoveLessonAsync([FromRoute] Guid lessonId)
+    [HttpPost("/api/lessons/delete-multiple")] // Must be post to accept a list of items
+    public async Task<IActionResult> RemoveLessonsAsync([FromBody] List<Guid> lessonIds)
     {
-        bool result = await _lessonService.RemoveLessonAsync(lessonId);
+        if (lessonIds == null || lessonIds.Count() == 0) // No data recieved
+            return BadRequest(new RequestDataError());
 
-        // If no lesson with this id exists
+        bool result = await _lessonService.RemoveLessonsAsync(lessonIds);
+
         if (!result)
-            return NotFound(new ResourceNotFoundError(lessonId.ToString()));
+            return NotFound(new GeneralError("No lessons with matching IDs were found."));
 
         return NoContent();
     }
 
     [Authorize(Roles = "Professor")]
-    [HttpPut("/api/lessons/{lessonId}")]
-    public async Task<IActionResult> UpdateLessonAsync([FromRoute] Guid lessonId, [FromBody] LessonDto lessonDto)
+    [HttpPut("/api/lessons")]
+    public async Task<IActionResult> UpdateLessonAsync([FromBody] List<LessonDto> lessonDtos)
     {
         // Fluent validation on DTO:
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
-        if (lessonDto == null)
+        if (lessonDtos == null || lessonDtos.Count == 0)
             return BadRequest(new RequestDataError());
 
-        ValidationResult validationResult = _validator.Validate(lessonDto);
+        List<Lesson> lessons = new List<Lesson>();
 
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
+        foreach (LessonDto lessonDto in lessonDtos)
+        {
+            if (!_lessonService.IsLessonExists(lessonDto.Id))
+                return NotFound(new ResourceNotFoundError(lessonDto.Id.ToString()));
 
-        // Map to Lesson object
-        Lesson lesson = _mapper.Map<Lesson>(lessonDto);
-        lesson.Id = lessonId;
+            ValidationResult validationResult = _validator.Validate(lessonDto);
 
-        // Call to service
-        LessonDto? resultLessonDto = await _lessonService.UpdateLessonAsync(lesson);
+            if (!validationResult.IsValid)
+                return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        if (resultLessonDto == null) return NotFound(new ResourceNotFoundError(lessonId.ToString()));
+            // Map to Lesson object
+            lessons.Add(_mapper.Map<Lesson>(lessonDto));
+        }
 
-        return Ok(resultLessonDto);
+        // Call to service after each lesson was validated
+        List<LessonDto>? resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessons);
+
+        // If saving to db failed.
+        if (resultLessonsDto == null)
+            return StatusCode(StatusCodes.Status500InternalServerError, new GeneralError("Something went wrong, please try again later"));
+
+        return Ok(lessons);
     }
 
     public void Dispose()

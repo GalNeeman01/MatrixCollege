@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Matrix.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Serilog;
 
 namespace Matrix;
 
@@ -72,31 +74,51 @@ public class LessonService : IDisposable
         return dtoLessons;
     }
 
-    public async Task<bool> RemoveLessonAsync(Guid lessonId)
+    public async Task<bool> RemoveLessonsAsync(List<Guid> lessonIds)
     {
-        Lesson? lesson = await _db.Lessons.AsNoTracking().SingleOrDefaultAsync(lesson => lesson.Id == lessonId);
+        List<Lesson> lessons = await _db.Lessons.AsNoTracking().Where(lesson => lessonIds.Contains(lesson.Id)).ToListAsync();
 
-        // If no such lesson exists
-        if (lesson == null) return false;
+        if (lessons.Count == 0)
+            return false;
 
-        _db.Lessons.Remove(lesson);
+        _db.Lessons.RemoveRange(lessons);
 
         await _db.SaveChangesAsync();
 
         return true;
     }
 
-    public async Task<LessonDto?> UpdateLessonAsync(Lesson lesson)
+    public async Task<List<LessonDto>?> UpdateLessonsAsync(List<Lesson> lessons)
     {
-        if (!IsLessonExists(lesson.Id)) return null;
+        // Update a list of enrollments using a transaction, only commit if all succeed
+        await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
 
-        _db.Lessons.Attach(lesson);
-        _db.Entry(lesson).State = EntityState.Modified;
-        await _db.SaveChangesAsync();
+        try
+        {
+            List<LessonDto> result = new List<LessonDto>();
 
-        LessonDto dto = _mapper.Map<LessonDto>(lesson);
+            foreach (Lesson lesson in lessons)
+            {
+                _db.Lessons.Attach(lesson);
+                _db.Entry(lesson).State = EntityState.Modified;
 
-        return dto;
+                LessonDto dto = _mapper.Map<LessonDto>(lesson);
+                result.Add(dto);
+            }
+
+            // Commit transaction
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return result;
+        }
+        catch (Exception err)
+        {
+            // Rollback transaction
+            await transaction.RollbackAsync();
+
+            Log.Error(err.Message);
+            return null;
+        }
     }
 
     public void Dispose()

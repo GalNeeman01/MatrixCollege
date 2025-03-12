@@ -51,7 +51,7 @@ public class EnrollmentService : IDisposable
 
             if (enrollment == null)
                 return false;
-
+            
             // Retrieve enrolled course
             Course? dbCourse = await _db.Courses.SingleOrDefaultAsync(c => c.Id == enrollment.CourseId);
 

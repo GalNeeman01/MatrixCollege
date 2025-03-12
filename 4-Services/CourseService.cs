@@ -73,6 +73,20 @@ public class CourseService : IDisposable
         return true;
     }
 
+    public async Task<CourseDto?> UpdateCourseAsync(Course course)
+    {
+        if (!(await IsCourseExistsAsync(course.Id)))
+            return null;
+
+        _db.Courses.Attach(course);
+        _db.Entry(course).State = EntityState.Modified;
+        await _db.SaveChangesAsync();
+
+        CourseDto dto = _mapper.Map<CourseDto>(course);
+
+        return dto;
+    }
+
     public void Dispose()
     {
         _db.Dispose();

@@ -10,6 +10,11 @@ public abstract class BaseError<T>
     }
 }
 
+public class GeneralError : BaseError<string>
+{
+    public GeneralError(string message) : base(message) { }
+}
+
 public class ResourceNotFoundError : BaseError<string>
 {
     public ResourceNotFoundError(string resourceId) : base($"No resource with the id of {resourceId} was found.") { }
