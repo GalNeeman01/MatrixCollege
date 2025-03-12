@@ -42,16 +42,16 @@ public class LessonService : IDisposable
         return _db.Lessons.AsNoTracking().Any(lesson => lesson.Id == lessonId);
     }
 
-    public async Task<LessonDto> AddLessonAsync(Lesson lesson)
+    public async Task<List<LessonDto>> AddLessonsAsync(List<Lesson> lessons)
     {
-        await _db.Lessons.AddAsync(lesson);
+        await _db.Lessons.AddRangeAsync(lessons);
 
         await _db.SaveChangesAsync();
 
         // Map to DTO
-        LessonDto dto = _mapper.Map<LessonDto>(lesson);
+        List<LessonDto> lessonDtos = lessons.Select(lesson => _mapper.Map<LessonDto>(lesson)).ToList();
 
-        return dto;
+        return lessonDtos;
     }
 
     public async Task<List<LessonDto>> GetLessonsByCourseIdAsync (Guid courseId)
@@ -88,37 +88,23 @@ public class LessonService : IDisposable
         return true;
     }
 
-    public async Task<List<LessonDto>?> UpdateLessonsAsync(List<Lesson> lessons)
+    public async Task<List<LessonDto>> UpdateLessonsAsync(List<Lesson> lessons)
     {
-        // Update a list of enrollments using a transaction, only commit if all succeed
-        await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
+        List<LessonDto> result = new List<LessonDto>();
 
-        try
+        foreach (Lesson lesson in lessons)
         {
-            List<LessonDto> result = new List<LessonDto>();
+            _db.Lessons.Attach(lesson);
+            _db.Entry(lesson).State = EntityState.Modified;
 
-            foreach (Lesson lesson in lessons)
-            {
-                _db.Lessons.Attach(lesson);
-                _db.Entry(lesson).State = EntityState.Modified;
-
-                LessonDto dto = _mapper.Map<LessonDto>(lesson);
-                result.Add(dto);
-            }
-
-            // Commit transaction
-            await _db.SaveChangesAsync();
-            await transaction.CommitAsync();
-            return result;
+            // Map to Dto
+            LessonDto dto = _mapper.Map<LessonDto>(lesson);
+            result.Add(dto);
         }
-        catch (Exception err)
-        {
-            // Rollback transaction
-            await transaction.RollbackAsync();
 
-            Log.Error(err.Message);
-            return null;
-        }
+        // Commit transaction
+        await _db.SaveChangesAsync();
+        return result;
     }
 
     public void Dispose()

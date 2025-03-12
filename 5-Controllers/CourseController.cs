@@ -62,11 +62,14 @@ public class CourseController : ControllerBase, IDisposable
     [HttpDelete("/api/courses/{courseId}")]
     public async Task<IActionResult> RemoveCourseAsync([FromRoute] Guid courseId)
     {
+        if (!(await _courseService.IsCourseExistsAsync(courseId)))
+            return NotFound(new ResourceNotFoundError(courseId.ToString()));
+
         bool result = await _courseService.RemoveCourseAsync(courseId);
 
         // If no lesson with this id exists
         if (!result)
-            return NotFound(new ResourceNotFoundError(courseId.ToString()));
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new GeneralError("Some error has occured.. please try again later."));
 
         return NoContent();
     }
@@ -94,8 +97,6 @@ public class CourseController : ControllerBase, IDisposable
 
         return NoContent();
     }
-
-
 
     public void Dispose()
     {

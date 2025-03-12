@@ -172,10 +172,13 @@ public class UserController : ControllerBase, IDisposable
     [HttpDelete("/api/user-enrollments/{enrollmentId}")]
     public async Task<IActionResult> RemoveEnrollmentAsync([FromRoute] Guid enrollmentId)
     {
+        if (!(await _enrollmentService.IsEnrollmentExists(enrollmentId)))
+            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
+
         bool result = await _enrollmentService.RemoveEnrollmentAsync(enrollmentId);
 
         if (!result)
-            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new GeneralError("Some error occured.. Please try again later"));
 
         return NoContent();
     }

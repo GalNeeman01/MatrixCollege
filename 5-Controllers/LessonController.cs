@@ -44,8 +44,7 @@ public class LessonController : ControllerBase, IDisposable
         }
 
         // If all lessons are validated, call DB to add them
-        foreach (Lesson lesson in lessons)
-            await _lessonService.AddLessonAsync(lesson);
+        List<LessonDto> result = await _lessonService.AddLessonsAsync(lessons);
 
         return Created("/", lessons);
     }
@@ -126,13 +125,9 @@ public class LessonController : ControllerBase, IDisposable
         }
 
         // Call to service after each lesson was validated
-        List<LessonDto>? resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessons);
+        List<LessonDto> resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessons);
 
-        // If saving to db failed.
-        if (resultLessonsDto == null)
-            return StatusCode(StatusCodes.Status500InternalServerError, new GeneralError("Something went wrong, please try again later"));
-
-        return Ok(lessons);
+        return Ok(resultLessonsDto);
     }
 
     public void Dispose()

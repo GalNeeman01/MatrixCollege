@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Serilog;
 
 namespace Matrix;
 
@@ -61,16 +63,30 @@ public class CourseService : IDisposable
 
     public async Task<bool> RemoveCourseAsync(Guid courseId)
     {
-        Course? course = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
+        // Use a transaction to verify full deletion of all related items
+        await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
 
-        // If no such course exists
-        if (course == null) return false;
+        try
+        {
+            Course? course = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
 
-        _db.Courses.Remove(course);
+            // If no such course exists
+            if (course == null) return false;
 
-        await _db.SaveChangesAsync();
+            // Remove related lessons
+            _db.Lessons.RemoveRange(_db.Lessons.Where(l => l.CourseId == courseId).ToList());
+            _db.Courses.Remove(course);
 
-        return true;
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            Log.Error(e.Message);
+            return false;
+        }
     }
 
     public async Task<CourseDto?> UpdateCourseAsync(Course course)

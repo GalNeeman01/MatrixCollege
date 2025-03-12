@@ -41,16 +41,18 @@ public class EnrollmentService : IDisposable
         return dtoEnrollments;
     }
 
+    public async Task<bool> IsEnrollmentExists(Guid enrollmentId)
+    {
+        return await _db.Enrollments.AnyAsync(en => en.Id == enrollmentId);
+    }
+
     public async Task<bool> RemoveEnrollmentAsync(Guid id)
     {
         await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
 
         try
         {
-            Enrollment? enrollment = await _db.Enrollments.SingleOrDefaultAsync(e => e.Id == id);
-
-            if (enrollment == null)
-                return false;
+            Enrollment enrollment = await _db.Enrollments.SingleAsync(e => e.Id == id);
             
             // Retrieve enrolled course
             Course? dbCourse = await _db.Courses.SingleOrDefaultAsync(c => c.Id == enrollment.CourseId);
