@@ -9,11 +9,13 @@ namespace Matrix;
 public class LessonService : IDisposable
 {
     private MatrixCollegeContext _db;
+    private ProgressService _progressService;
     private IMapper _mapper;
 
-    public LessonService(MatrixCollegeContext db, IMapper mapper)
+    public LessonService(MatrixCollegeContext db, IMapper mapper, ProgressService progressService)
     {
         _db = db;
+        _progressService = progressService;
         _mapper = mapper;
     }
 
@@ -88,6 +90,23 @@ public class LessonService : IDisposable
         return true;
     }
 
+    public async Task<bool> RemoveLessonsByCourseId(Guid courseId)
+    {
+        List<Lesson> lessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
+
+        if (lessons.Count == 0)
+            return false;
+
+        // Remove related progresses
+        await _progressService.RemoveProgressByLessonsAsync(lessons);
+
+        _db.Lessons.RemoveRange(lessons);
+
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
+
     public async Task<List<LessonDto>> UpdateLessonsAsync(List<Lesson> lessons)
     {
         List<LessonDto> result = new List<LessonDto>();
@@ -109,6 +128,7 @@ public class LessonService : IDisposable
 
     public void Dispose()
     {
+        _progressService.Dispose();
         _db.Dispose();
     }
 }

@@ -88,6 +88,12 @@ public class EnrollmentService : IDisposable
         }
     }
 
+    public async Task RemoveEnrollmentsByCourseAsync(Guid courseId)
+    {
+        _db.Enrollments.RemoveRange(await _db.Enrollments.Where(e => e.CourseId == courseId).ToListAsync());
+        await _db.SaveChangesAsync();
+    }
+
     public void Dispose()
     {
         _db.Dispose();

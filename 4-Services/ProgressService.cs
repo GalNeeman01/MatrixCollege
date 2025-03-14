@@ -40,6 +40,17 @@ public class ProgressService : IDisposable
         return dto;
     }
 
+    public async Task RemoveProgressByLessonsAsync(List<Lesson> lessons)
+    {
+        List<Progress> progressesToDelete = new List<Progress>();
+
+        foreach (Lesson lesson in lessons)
+            progressesToDelete.AddRange(await _db.Progresses.Where(p => p.LessonId == lesson.Id).ToListAsync());
+
+        _db.Progresses.RemoveRange(progressesToDelete);
+        await _db.SaveChangesAsync();
+    }
+
     // Dispose of unused resources
     public void Dispose()
     {

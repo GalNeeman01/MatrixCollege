@@ -58,6 +58,17 @@ public class CourseController : ControllerBase, IDisposable
         return Ok(course);
     }
 
+    [HttpGet("/api/course-by-lesson/{lessonId}")]
+    public async Task<IActionResult> GetCourseByLessonIdAsync([FromRoute] Guid lessonId)
+    {
+        CourseDto? course = await _courseService.GetCourseByLessonIdAsync(lessonId);
+
+        if (course == null)
+            return NotFound(new ResourceNotFoundError(lessonId.ToString()));
+
+        return Ok(course);
+    }
+
     [Authorize(Roles = "Professor")]
     [HttpDelete("/api/courses/{courseId}")]
     public async Task<IActionResult> RemoveCourseAsync([FromRoute] Guid courseId)
@@ -67,7 +78,7 @@ public class CourseController : ControllerBase, IDisposable
 
         bool result = await _courseService.RemoveCourseAsync(courseId);
 
-        // If no lesson with this id exists
+        // If deletion failed (due to cascading problems)
         if (!result)
             return StatusCode(StatusCodes.Status503ServiceUnavailable, new GeneralError("Some error has occured.. please try again later."));
 

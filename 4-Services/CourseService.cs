@@ -8,12 +8,16 @@ namespace Matrix;
 public class CourseService : IDisposable
 {
     private MatrixCollegeContext _db;
+    private LessonService _lessonService;
+    private EnrollmentService _enrollmentService;
     private IMapper _mapper;
 
 
-    public CourseService(MatrixCollegeContext db, IMapper mapper)
+    public CourseService(MatrixCollegeContext db, IMapper mapper, LessonService lessonService, EnrollmentService enrollmentService)
     {
         _db = db;
+        _enrollmentService = enrollmentService;
+        _lessonService = lessonService;
         _mapper = mapper;
     }
 
@@ -55,6 +59,15 @@ public class CourseService : IDisposable
         return _mapper.Map<CourseDto>(dbCourse);
     }
 
+    public async Task<CourseDto?> GetCourseByLessonIdAsync(Guid lessonId)
+    {
+        Course? dbCourse = await _db.Courses.AsNoTracking().Include(c => c.Lessons).SingleOrDefaultAsync(course => course.Lessons!.Any(l => l.Id == lessonId));
+
+        if (dbCourse == null) return null;
+
+        return _mapper.Map<CourseDto>(dbCourse);
+    }
+
     // Return whether a course exists in the DB
     public async Task<bool> IsCourseExistsAsync(Guid courseId)
     {
@@ -68,13 +81,15 @@ public class CourseService : IDisposable
 
         try
         {
-            Course? course = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
-
-            // If no such course exists
-            if (course == null) return false;
+            Course course = await _db.Courses.AsNoTracking().SingleAsync(course => course.Id == courseId);
 
             // Remove related lessons
-            _db.Lessons.RemoveRange(_db.Lessons.Where(l => l.CourseId == courseId).ToList());
+            await _lessonService.RemoveLessonsByCourseId(courseId);
+
+            // Remove related enrollments
+            await _enrollmentService.RemoveEnrollmentsByCourseAsync(courseId);
+
+            // Remove course
             _db.Courses.Remove(course);
 
             await _db.SaveChangesAsync();
@@ -105,6 +120,8 @@ public class CourseService : IDisposable
 
     public void Dispose()
     {
+        _enrollmentService.Dispose();
+        _lessonService.Dispose();
         _db.Dispose();
     }
 }
