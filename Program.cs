@@ -1,7 +1,9 @@
+using AspNetCoreRateLimit;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Runtime;
 
 namespace Matrix;
 
@@ -23,6 +25,11 @@ public class Program
         // Setup appconfig
         AppConfig.Configure();
 
+        // Setup ratelimit
+        builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("RateLimit"));
+        builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        builder.Services.AddInMemoryRateLimiting();
+
         // Add DI services
         builder.Services.AddScoped<MatrixCollegeContext>();
         builder.Services.AddScoped<UserService>();
@@ -37,6 +44,10 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<LessonValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ProgressValidator>();
+
+        // IOptions DIs
+        builder.Services.Configure<LogSettings>(
+            builder.Configuration.GetSection("LogSettings"));
 
         // Add jobs
         builder.Services.AddHostedService<LogCleanerService>();
@@ -72,6 +83,7 @@ public class Program
         app.UseCors("AllowAll");
 
         // Middleware
+        app.UseIpRateLimiting();
         app.UseSerilogRequestLogging();
         app.UseAuthorization();
         app.MapControllers();
