@@ -38,6 +38,9 @@ public class Program
         builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<ProgressValidator>();
 
+        // Add jobs
+        builder.Services.AddHostedService<LogCleanerService>();
+
         // Add CORS Policy
         builder.Services.AddCors(options =>
         {
