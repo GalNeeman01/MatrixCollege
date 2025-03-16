@@ -101,7 +101,7 @@ public class LessonController : ControllerBase, IDisposable
 
     [Authorize(Roles = "Professor")]
     [HttpPut("/api/lessons")]
-    public async Task<IActionResult> UpdateLessonAsync([FromBody] List<LessonDto> lessonDtos)
+    public async Task<IActionResult> UpdateLessonsAsync([FromBody] List<LessonDto> lessonDtos)
     {
         // Fluent validation on DTO:
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null

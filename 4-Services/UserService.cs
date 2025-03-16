@@ -26,7 +26,7 @@ public class UserService : IDisposable
     {
         user.Email = user.Email.ToLower(); // Format email
         user.Password = Encryptor.GetHashed(user.Password); // Convert to hashed
-        user.RoleId = (int)RolesEnum.Student;
+        user.RoleId = (user.RoleId == 2 || user.RoleId == 3) ? user.RoleId : (int)RolesEnum.Student;
 
         await _db.Users.AddAsync(user);
 
