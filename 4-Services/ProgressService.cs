@@ -5,15 +5,19 @@ namespace Matrix;
 
 public class ProgressService : IDisposable
 {
+    // DI's
     private MatrixCollegeContext _db;
     private IMapper _mapper;
 
+    // Constructor
     public ProgressService(MatrixCollegeContext db, IMapper mapper)
     {
         _db = db;
         _mapper = mapper;
     }
 
+
+    // Methods
     public async Task<List<ProgressDto>> GetUserProgressAsync(Guid userId)
     {
         List<ProgressDto> dtoProgresses = new List<ProgressDto>();

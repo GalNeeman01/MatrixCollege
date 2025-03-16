@@ -8,15 +8,18 @@ namespace Matrix;
 
 public class EnrollmentService : IDisposable
 {
+    // DI's
     private MatrixCollegeContext _db;
     private IMapper _mapper;
 
+    // Constructor
     public EnrollmentService(MatrixCollegeContext db, IMapper mapper)
     {
         _db = db;
         _mapper = mapper;
     }
 
+    // Methods
     public async Task<EnrollmentDto> EnrollAsync(Enrollment enrollment)
     {
         DateTime now = DateTime.Now; // Store current time

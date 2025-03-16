@@ -7,12 +7,13 @@ namespace Matrix;
 
 public class CourseService : IDisposable
 {
+    // DI's
     private MatrixCollegeContext _db;
     private LessonService _lessonService;
     private EnrollmentService _enrollmentService;
     private IMapper _mapper;
 
-
+    // Constructor
     public CourseService(MatrixCollegeContext db, IMapper mapper, LessonService lessonService, EnrollmentService enrollmentService)
     {
         _db = db;
@@ -21,6 +22,7 @@ public class CourseService : IDisposable
         _mapper = mapper;
     }
 
+    // Methods
     public async Task<CourseDto> CreateCourseAsync(Course course)
     {
         course.CreatedAt = DateTime.Now; // Set the current time

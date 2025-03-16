@@ -5,13 +5,17 @@ namespace Matrix;
 
 public class LogCleanerService : BackgroundService
 {
+    // DI's
     private LogSettings _logSettings;
 
+
+    // Constructor
     public LogCleanerService(IOptions<LogSettings> options)
     {
         _logSettings = options.Value;
     }
 
+    // Methods
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Set clean-up interval
@@ -48,7 +52,7 @@ public class LogCleanerService : BackgroundService
             {
                 FileInfo logFileInfo = new FileInfo(logName);
 
-                // Remove if older than max age
+                // Remove if older than retention days
                 if (logFileInfo.CreationTime <DateTime.Now.AddDays(-_logSettings.LogRetentionDays))
                 {
                     Log.Information("Removing old log: " + logName);

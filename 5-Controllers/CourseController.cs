@@ -9,10 +9,12 @@ namespace Matrix;
 [ApiController]
 public class CourseController : ControllerBase, IDisposable
 {
+    // DI's
     private CourseService _courseService;
     private IValidator<CourseDto> _validator;
     private IMapper _mapper;
 
+    // Constructor
     public CourseController(CourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
     {
         _courseService = courseService;
@@ -20,6 +22,7 @@ public class CourseController : ControllerBase, IDisposable
         _mapper = mapper;
     }
 
+    // Routes
     [Authorize(Roles = "Professor")]
     [HttpPost("/api/courses")]
     public async Task<IActionResult> CreateCourseAsync([FromBody] CourseDto courseDto)

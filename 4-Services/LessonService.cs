@@ -8,10 +8,12 @@ namespace Matrix;
 
 public class LessonService : IDisposable
 {
+    // DI's
     private MatrixCollegeContext _db;
     private ProgressService _progressService;
     private IMapper _mapper;
 
+    // Constructor
     public LessonService(MatrixCollegeContext db, IMapper mapper, ProgressService progressService)
     {
         _db = db;
@@ -19,6 +21,7 @@ public class LessonService : IDisposable
         _mapper = mapper;
     }
 
+    // Methods
     public async Task<List<LessonDto>> GetAllLessonsAsync()
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();

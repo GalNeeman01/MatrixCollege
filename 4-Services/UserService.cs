@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
 
+// Enum for roles
 public enum RolesEnum
 {
     Admin = 1,
@@ -12,9 +13,11 @@ public enum RolesEnum
 
 public class UserService : IDisposable
 {
+    // DI's
     private MatrixCollegeContext _db;
     private IMapper _mapper;
 
+    // Constructor
     public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper)
     {
         _db = matrixCollegeContext;
@@ -22,6 +25,7 @@ public class UserService : IDisposable
         
     }
 
+    // Methods
     public async Task<string> RegisterAsync(User user)
     {
         user.Email = user.Email.ToLower(); // Format email

@@ -9,7 +9,7 @@ namespace Matrix;
 [ApiController]
 public class UserController : ControllerBase, IDisposable
 {
-    // DI
+    // DI's
     // Services
     private UserService _userService;
     private EnrollmentService _enrollmentService;
