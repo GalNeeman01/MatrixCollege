@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
 
+[Route("/api/v1/[Controller]")]
 [ApiController]
-public class CourseController : ControllerBase, IDisposable
+public class CoursesController : ControllerBase, IDisposable
 {
     // DI's
     private CourseService _courseService;
@@ -15,7 +16,7 @@ public class CourseController : ControllerBase, IDisposable
     private IMapper _mapper;
 
     // Constructor
-    public CourseController(CourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
+    public CoursesController(CourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
     {
         _courseService = courseService;
         _validator = validator;
@@ -24,7 +25,7 @@ public class CourseController : ControllerBase, IDisposable
 
     // Routes
     [Authorize(Roles = "Professor")]
-    [HttpPost("/api/courses")]
+    [HttpPost]
     public async Task<IActionResult> CreateCourseAsync([FromBody] CourseDto courseDto)
     {
         // Fluent validation
@@ -42,7 +43,7 @@ public class CourseController : ControllerBase, IDisposable
         return Created("/", createdCourse);
     }
 
-    [HttpGet("/api/courses")]
+    [HttpGet]
     public async Task<IActionResult> GetAllCoursesAsync()
     {
         List<CourseDto> courses = await _courseService.GetAllCoursesAsync();
@@ -50,7 +51,7 @@ public class CourseController : ControllerBase, IDisposable
         return Ok(courses);
     }
 
-    [HttpGet("/api/courses/{courseId}")]
+    [HttpGet("{courseId}")]
     public async Task<IActionResult> GetCourseByIdAsync([FromRoute] Guid courseId)
     {
         CourseDto? course = await _courseService.GetCourseByIdAsync(courseId);
@@ -61,7 +62,7 @@ public class CourseController : ControllerBase, IDisposable
         return Ok(course);
     }
 
-    [HttpGet("/api/course-by-lesson/{lessonId}")]
+    [HttpGet("lesson/{lessonId}")]
     public async Task<IActionResult> GetCourseByLessonIdAsync([FromRoute] Guid lessonId)
     {
         CourseDto? course = await _courseService.GetCourseByLessonIdAsync(lessonId);
@@ -73,7 +74,7 @@ public class CourseController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor")]
-    [HttpDelete("/api/courses/{courseId}")]
+    [HttpDelete("{courseId}")]
     public async Task<IActionResult> RemoveCourseAsync([FromRoute] Guid courseId)
     {
         if (!(await _courseService.IsCourseExistsAsync(courseId)))
@@ -89,7 +90,7 @@ public class CourseController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor")]
-    [HttpPut("/api/courses")]
+    [HttpPut]
     public async Task<IActionResult> UpdateCourseAsync([FromBody] CourseDto courseDto)
     {
         // Fluent validation on DTO:

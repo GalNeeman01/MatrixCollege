@@ -8,7 +8,6 @@ public class LogCleanerService : BackgroundService
     // DI's
     private LogSettings _logSettings;
 
-
     // Constructor
     public LogCleanerService(IOptions<LogSettings> options)
     {
