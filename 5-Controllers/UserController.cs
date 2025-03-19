@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
 
+[Route("/api/v1/[Controller]")]
 [ApiController]
-public class UserController : ControllerBase, IDisposable
+public class UsersController : ControllerBase, IDisposable
 {
     // DI's
     // Services
@@ -27,7 +28,7 @@ public class UserController : ControllerBase, IDisposable
     private IMapper _mapper;
 
     // Constructor
-    public UserController(
+    public UsersController(
         UserService userService, 
         EnrollmentService enrollmentService,
         ProgressService progressService,
@@ -52,7 +53,7 @@ public class UserController : ControllerBase, IDisposable
     }
 
     // Routes
-    [HttpPost("/api/register")]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] CreateUserDto userDto)
     {
         // Fluent validation
@@ -73,7 +74,7 @@ public class UserController : ControllerBase, IDisposable
         return Created("/", token);
     }
 
-    [HttpPost("/api/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] Credentials credentials)
     {
         // Fluent validation
@@ -94,7 +95,7 @@ public class UserController : ControllerBase, IDisposable
 
     // Progress routes
     [Authorize(Roles = "Student")]
-    [HttpPost("/api/user-progress")]
+    [HttpPost("progress")]
     public async Task<IActionResult> AddProgressAsync([FromBody] ProgressDto progressDto)
     {
         if (progressDto == null)
@@ -118,14 +119,14 @@ public class UserController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Student")]
-    [HttpGet("/api/user-progress/{userId}")]
+    [HttpGet("progress/{userId}")]
     public async Task<IActionResult> GetUserProgressAsync([FromRoute] Guid userId)
     {
         return Ok(await _progressService.GetUserProgressAsync(userId));
     }
 
     [Authorize(Roles = "Student")]
-    [HttpPost("/api/user-enroll")]
+    [HttpPost("enrollments")]
     public async Task<IActionResult> AddEnrollmentAsync([FromBody] EnrollmentDto enrollmentDto)
     {
         // In case of invalid Guid from request which would cause a crash
@@ -154,7 +155,7 @@ public class UserController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Student")]
-    [HttpGet("/api/user-enrollments/{userId}")]
+    [HttpGet("enrollments/{userId}")]
     public async Task<IActionResult> GetUserEnrollmentsAsync([FromRoute] Guid userId)
     {
         if (!_userService.IsUserExists(userId))
@@ -169,7 +170,7 @@ public class UserController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Student")]
-    [HttpDelete("/api/user-enrollments/{enrollmentId}")]
+    [HttpDelete("enrollments/{enrollmentId}")]
     public async Task<IActionResult> RemoveEnrollmentAsync([FromRoute] Guid enrollmentId)
     {
         if (!(await _enrollmentService.IsEnrollmentExists(enrollmentId)))
