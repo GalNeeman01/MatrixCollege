@@ -11,7 +11,7 @@ public enum RolesEnum
     Professor = 3
 };
 
-public class UserService : IDisposable
+public class UserService
 {
     // DI's
     private MatrixCollegeContext _db;
@@ -62,11 +62,5 @@ public class UserService : IDisposable
     public async Task<bool> IsEmailUniqueAsync (string email)
     {
         return await _db.Users.AsNoTracking().AnyAsync(user => user.Email == email.ToLower()) == false;
-    }
-
-    // Dispose of unused resources
-    public void Dispose()
-    {
-        _db.Dispose();
     }
 }

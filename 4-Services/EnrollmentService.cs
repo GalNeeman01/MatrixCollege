@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Matrix;
 
-public class EnrollmentService : IDisposable
+public class EnrollmentService
 {
     // DI's
     private MatrixCollegeContext _db;
@@ -95,10 +95,5 @@ public class EnrollmentService : IDisposable
     {
         _db.Enrollments.RemoveRange(await _db.Enrollments.Where(e => e.CourseId == courseId).ToListAsync());
         await _db.SaveChangesAsync();
-    }
-
-    public void Dispose()
-    {
-        _db.Dispose();
     }
 }

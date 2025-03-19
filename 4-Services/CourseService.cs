@@ -5,7 +5,7 @@ using Serilog;
 
 namespace Matrix;
 
-public class CourseService : IDisposable
+public class CourseService
 {
     // DI's
     private MatrixCollegeContext _db;
@@ -118,12 +118,5 @@ public class CourseService : IDisposable
         CourseDto dto = _mapper.Map<CourseDto>(course);
 
         return dto;
-    }
-
-    public void Dispose()
-    {
-        _enrollmentService.Dispose();
-        _lessonService.Dispose();
-        _db.Dispose();
     }
 }

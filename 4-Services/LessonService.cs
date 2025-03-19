@@ -6,7 +6,7 @@ using Serilog;
 
 namespace Matrix;
 
-public class LessonService : IDisposable
+public class LessonService
 {
     // DI's
     private MatrixCollegeContext _db;
@@ -127,11 +127,5 @@ public class LessonService : IDisposable
         // Commit transaction
         await _db.SaveChangesAsync();
         return result;
-    }
-
-    public void Dispose()
-    {
-        _progressService.Dispose();
-        _db.Dispose();
     }
 }

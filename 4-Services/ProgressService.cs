@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
 
-public class ProgressService : IDisposable
+public class ProgressService
 {
     // DI's
     private MatrixCollegeContext _db;
@@ -15,7 +15,6 @@ public class ProgressService : IDisposable
         _db = db;
         _mapper = mapper;
     }
-
 
     // Methods
     public async Task<List<ProgressDto>> GetUserProgressAsync(Guid userId)
@@ -53,11 +52,5 @@ public class ProgressService : IDisposable
 
         _db.Progresses.RemoveRange(progressesToDelete);
         await _db.SaveChangesAsync();
-    }
-
-    // Dispose of unused resources
-    public void Dispose()
-    {
-        _db.Dispose();
     }
 }
