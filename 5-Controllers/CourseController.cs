@@ -8,7 +8,7 @@ namespace Matrix;
 
 [Route("/api/v1/[Controller]")]
 [ApiController]
-public class CoursesController : ControllerBase, IDisposable
+public class CoursesController : ControllerBase
 {
     // DI's
     private CourseService _courseService;
@@ -111,10 +111,5 @@ public class CoursesController : ControllerBase, IDisposable
             return BadRequest(new ResourceNotFoundError(courseDto.Id.ToString()));
 
         return NoContent();
-    }
-
-    public void Dispose()
-    {
-        _courseService.Dispose();
     }
 }

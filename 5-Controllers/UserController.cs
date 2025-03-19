@@ -8,7 +8,7 @@ namespace Matrix;
 
 [Route("/api/v1/[Controller]")]
 [ApiController]
-public class UsersController : ControllerBase, IDisposable
+public class UsersController : ControllerBase
 {
     // DI's
     // Services
@@ -182,15 +182,5 @@ public class UsersController : ControllerBase, IDisposable
             return StatusCode(StatusCodes.Status503ServiceUnavailable, new GeneralError("Some error occured.. Please try again later"));
 
         return NoContent();
-    }
-
-    // Dispose of unused resources
-    public void Dispose()
-    {
-        _courseService.Dispose();
-        _enrollmentService.Dispose();
-        _progressService.Dispose();
-        _userService.Dispose();
-        _lessonService.Dispose();
     }
 }

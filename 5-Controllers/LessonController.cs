@@ -8,7 +8,7 @@ namespace Matrix;
 
 [Route("/api/v1/[Controller]")]
 [ApiController]
-public class LessonsController : ControllerBase, IDisposable
+public class LessonsController : ControllerBase
 {
     // DI's
     private LessonService _lessonService;
@@ -132,10 +132,5 @@ public class LessonsController : ControllerBase, IDisposable
         List<LessonDto> resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessons);
 
         return Ok(resultLessonsDto);
-    }
-
-    public void Dispose()
-    {
-        _lessonService.Dispose();
     }
 }
