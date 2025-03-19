@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix;
 
+[Route("/api/v1/[Controller]")]
 [ApiController]
-public class LessonController : ControllerBase, IDisposable
+public class LessonsController : ControllerBase, IDisposable
 {
     // DI's
     private LessonService _lessonService;
@@ -16,7 +17,7 @@ public class LessonController : ControllerBase, IDisposable
     private IValidator<LessonDto> _validator;
 
     // Constructor
-    public LessonController(LessonService lessonService, IValidator<LessonDto> validator, IMapper mapper, CourseService courseService)
+    public LessonsController(LessonService lessonService, IValidator<LessonDto> validator, IMapper mapper, CourseService courseService)
     {
         _lessonService = lessonService;
         _validator = validator;
@@ -26,7 +27,7 @@ public class LessonController : ControllerBase, IDisposable
 
     // Routes
     [Authorize(Roles = "Professor")]
-    [HttpPost("/api/lessons")]
+    [HttpPost]
     public async Task<IActionResult> AddLessonsAsync([FromBody] List<LessonDto> lessonDtos)
     {
         // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
@@ -53,7 +54,7 @@ public class LessonController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor,Student")]
-    [HttpGet("/api/lessons")]
+    [HttpGet]
     public async Task<IActionResult> GetAllLessonsAsync()
     {
         List<LessonDto> lessons = await _lessonService.GetAllLessonsAsync();
@@ -62,7 +63,7 @@ public class LessonController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor,Student")]
-    [HttpGet("/api/lessons/{lessonId}")]
+    [HttpGet("{lessonId}")]
     public async Task<IActionResult> GetLessonByIdAsync([FromRoute] Guid lessonId)
     {
         LessonDto? lesson = await _lessonService.GetLessonByIdAsync(lessonId);
@@ -75,20 +76,20 @@ public class LessonController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor,Student")]
-    [HttpGet("/api/lessons-by-course/{courseId}")]
+    [HttpGet("course/{courseId}")]
     public async Task<IActionResult> GetLessonsByCourseIdAsync([FromRoute] Guid courseId)
     {
         return Ok(await _lessonService.GetLessonsByCourseIdAsync(courseId));
     }
 
-    [HttpGet("/api/lessons-info-by-course/{courseId}")]
+    [HttpGet("course/{courseId}/preview")]
     public async Task<IActionResult> GetLessonsInfoByCourseIdAsync([FromRoute] Guid courseId)
     {
         return Ok(await _lessonService.GetLessonsInfoByCourseIdAsync(courseId));
     }
 
     [Authorize(Roles = "Professor")]
-    [HttpPost("/api/lessons/delete-multiple")] // Must be post to accept a list of items
+    [HttpPost("delete")] // Must be post to accept a list of items
     public async Task<IActionResult> RemoveLessonsAsync([FromBody] List<Guid> lessonIds)
     {
         if (lessonIds == null || lessonIds.Count() == 0) // No data recieved
@@ -103,7 +104,7 @@ public class LessonController : ControllerBase, IDisposable
     }
 
     [Authorize(Roles = "Professor")]
-    [HttpPut("/api/lessons")]
+    [HttpPut]
     public async Task<IActionResult> UpdateLessonsAsync([FromBody] List<LessonDto> lessonDtos)
     {
         // Fluent validation on DTO:
