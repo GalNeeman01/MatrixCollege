@@ -8,23 +8,13 @@ public class CatchAllMiddleware : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
-        string message =  GetInnerMessage(context.Exception);
-        InternalServerError<string> error = new InternalServerError<string>(message);
+        InternalServerError<Exception> error = new InternalServerError<Exception>(context.Exception);
         JsonResult result = new JsonResult(error);
         result.StatusCode = StatusCodes.Status500InternalServerError;
         context.Result = result;
         context.ExceptionHandled = true;
+
         // Log to serilog
-        Log.Error("ERROR - Internal Server Error: '" + message + "'");
-    }
-
-    private string GetInnerMessage(Exception ex)
-    {
-        if (ex == null) return ""; // Just In Case
-
-        if (ex.InnerException == null)
-            return ex.Message;
-
-        return GetInnerMessage(ex.InnerException);
+        Log.Error("ERROR - Internal Server Error: '" + context.Exception + "'");
     }
 }
