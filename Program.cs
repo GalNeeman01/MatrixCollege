@@ -46,17 +46,8 @@ public class Program
         // Add jobs
         builder.Services.AddHostedService<LogCleanerService>();
 
-        // Add CORS Policy
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAll",
-                policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
-        });
+        // Add CORS Policies
+        builder.Services.AddCorsPolicies();
 
         // Add global filters
         builder.Services.AddMvc(options => options.Filters.Add<CatchAllFilter>());
@@ -67,6 +58,7 @@ public class Program
             options.SuppressModelStateInvalidFilter = true;
         });
 
+        // Apply JWT settings
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
         {
             AuthSettings authSettings = builder.Configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>()!;
