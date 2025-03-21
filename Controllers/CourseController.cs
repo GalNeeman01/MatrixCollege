@@ -11,12 +11,12 @@ namespace Matrix;
 public class CoursesController : ControllerBase
 {
     // DI's
-    private CourseService _courseService;
+    private ICourseService _courseService;
     private IValidator<CourseDto> _validator;
     private IMapper _mapper;
 
     // Constructor
-    public CoursesController(CourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
+    public CoursesController(ICourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
     {
         _courseService = courseService;
         _validator = validator;

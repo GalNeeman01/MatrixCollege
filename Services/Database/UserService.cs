@@ -11,7 +11,7 @@ public enum RolesEnum
     Professor = 3
 };
 
-public class UserService
+public class UserService : IUserService
 {
     // DI's
     private MatrixCollegeContext _db;

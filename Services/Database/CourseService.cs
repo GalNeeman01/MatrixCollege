@@ -5,16 +5,16 @@ using Serilog;
 
 namespace Matrix;
 
-public class CourseService
+public class CourseService : ICourseService
 {
     // DI's
     private MatrixCollegeContext _db;
-    private LessonService _lessonService;
-    private EnrollmentService _enrollmentService;
+    private ILessonService _lessonService;
+    private IEnrollmentService _enrollmentService;
     private IMapper _mapper;
 
     // Constructor
-    public CourseService(MatrixCollegeContext db, IMapper mapper, LessonService lessonService, EnrollmentService enrollmentService)
+    public CourseService(MatrixCollegeContext db, IMapper mapper, ILessonService lessonService, IEnrollmentService enrollmentService)
     {
         _db = db;
         _enrollmentService = enrollmentService;

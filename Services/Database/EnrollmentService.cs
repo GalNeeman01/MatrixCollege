@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Matrix;
 
-public class EnrollmentService
+public class EnrollmentService : IEnrollmentService
 {
     // DI's
     private MatrixCollegeContext _db;

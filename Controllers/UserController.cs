@@ -12,11 +12,11 @@ public class UsersController : ControllerBase
 {
     // DI's
     // Services
-    private UserService _userService;
-    private EnrollmentService _enrollmentService;
-    private ProgressService _progressService;
-    private CourseService _courseService;
-    private LessonService _lessonService;
+    private IUserService _userService;
+    private IEnrollmentService _enrollmentService;
+    private IProgressService _progressService;
+    private ICourseService _courseService;
+    private ILessonService _lessonService;
 
     // Validators
     private IValidator<CreateUserDto> _userValidator;
@@ -29,11 +29,11 @@ public class UsersController : ControllerBase
 
     // Constructor
     public UsersController(
-        UserService userService, 
-        EnrollmentService enrollmentService,
-        ProgressService progressService,
-        CourseService courseService,
-        LessonService lessonService,
+        IUserService userService, 
+        IEnrollmentService enrollmentService,
+        IProgressService progressService,
+        ICourseService courseService,
+        ILessonService lessonService,
         IValidator<CreateUserDto> userValidator, 
         IValidator<ProgressDto> progressValidator, 
         IValidator<EnrollmentDto> enrollmentValidator,

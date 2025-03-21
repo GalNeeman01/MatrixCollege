@@ -1,4 +1,4 @@
-﻿namespace Matrix.DTOs;
+﻿namespace Matrix;
 
 public class LessonInfoDto
 {

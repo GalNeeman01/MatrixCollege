@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Matrix;
 
-public class ProgressService
+public class ProgressService : IProgressService
 {
     // DI's
     private MatrixCollegeContext _db;

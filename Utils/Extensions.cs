@@ -6,11 +6,11 @@ public static class Extensions
     public static void AddDbServices(this IServiceCollection services)
     {
         services.AddDbContext<MatrixCollegeContext>();
-        services.AddScoped<UserService>();
-        services.AddScoped<CourseService>();
-        services.AddScoped<LessonService>();
-        services.AddScoped<EnrollmentService>();
-        services.AddScoped<ProgressService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<ILessonService, LessonService>();
+        services.AddScoped<IEnrollmentService, EnrollmentService>();
+        services.AddScoped<IProgressService, ProgressService>();
     }
 
     // Other services

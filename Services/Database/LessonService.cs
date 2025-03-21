@@ -1,20 +1,17 @@
 ﻿using AutoMapper;
-using Matrix.DTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Serilog;
 
 namespace Matrix;
 
-public class LessonService
+public class LessonService : ILessonService
 {
     // DI's
     private MatrixCollegeContext _db;
-    private ProgressService _progressService;
+    private IProgressService _progressService;
     private IMapper _mapper;
 
     // Constructor
-    public LessonService(MatrixCollegeContext db, IMapper mapper, ProgressService progressService)
+    public LessonService(MatrixCollegeContext db, IMapper mapper, IProgressService progressService)
     {
         _db = db;
         _progressService = progressService;
