@@ -15,14 +15,15 @@ public class UserService
 {
     // DI's
     private MatrixCollegeContext _db;
+    private TokenService _tokenService;
     private IMapper _mapper;
 
     // Constructor
-    public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper)
+    public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper, TokenService tokenService)
     {
         _db = matrixCollegeContext;
         _mapper = mapper;
-        
+        _tokenService = tokenService;
     }
 
     // Methods
@@ -38,7 +39,7 @@ public class UserService
 
         user.Role = await _db.Roles.SingleAsync(role => role.Id == user.RoleId);
 
-        return JwtHelper.GetNewToken(user);
+        return _tokenService.GetNewToken(user);
     }
 
     public async Task<string?> LoginAsync(Credentials credentials)
@@ -51,7 +52,7 @@ public class UserService
 
         if (dbUser == null) return null;
 
-        return JwtHelper.GetNewToken(dbUser);
+        return _tokenService.GetNewToken(dbUser);
     }
 
     public bool IsUserExists(Guid id)
