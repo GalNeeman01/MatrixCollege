@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Matrix;
 
@@ -16,9 +17,16 @@ public class MatrixCollegeContext : DbContext
 
     public DbSet<Progress> Progresses { get; set; }
 
+    private readonly DatabaseSettings _dbSettings;
+
+    public MatrixCollegeContext(IOptions<DatabaseSettings> dbSettings)
+    {
+        _dbSettings = dbSettings.Value;
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(AppConfig.ConnectionString);
+        optionsBuilder.UseSqlServer(_dbSettings.DefaultConnection);
 
         base.OnConfiguring(optionsBuilder);
     }

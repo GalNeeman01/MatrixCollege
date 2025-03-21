@@ -2,6 +2,7 @@ using AspNetCoreRateLimit;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Serilog;
 using System.Runtime;
 
@@ -22,16 +23,14 @@ public class Program
         // Use AutoMapper
         builder.Services.AddAutoMapper(typeof(Program));
 
-        // Setup appconfig
-        AppConfig.Configure();
-
         // Setup ratelimit
         builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("RateLimit"));
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         builder.Services.AddInMemoryRateLimiting();
 
         // Add DI services
-        builder.Services.AddScoped<MatrixCollegeContext>();
+        builder.Services.AddDbContext<MatrixCollegeContext>();
+        builder.Services.AddSingleton<TokenService>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<CourseService>();
         builder.Services.AddScoped<LessonService>();
@@ -47,7 +46,13 @@ public class Program
 
         // IOptions DIs
         builder.Services.Configure<LogSettings>(
-            builder.Configuration.GetSection("LogSettings"));
+            builder.Configuration.GetSection(nameof(LogSettings)));
+
+        builder.Services.Configure<AuthSettings>(
+            builder.Configuration.GetSection(nameof(AuthSettings)));
+
+        builder.Services.Configure<DatabaseSettings>(
+            builder.Configuration.GetSection(nameof(DatabaseSettings)));
 
         // Add jobs
         builder.Services.AddHostedService<LogCleanerService>();
@@ -73,7 +78,11 @@ public class Program
             options.SuppressModelStateInvalidFilter = true;
         });
 
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtHelper.SetBearerOptions);
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+        {
+            AuthSettings authSettings = builder.Configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>()!;
+            JwtBearerOptionsSetup.Configure(options, authSettings);
+        });
 
         builder.Services.AddControllers();
 
