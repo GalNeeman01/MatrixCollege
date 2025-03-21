@@ -2,9 +2,7 @@ using AspNetCoreRateLimit;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Serilog;
-using System.Runtime;
 
 namespace Matrix;
 
@@ -29,21 +27,12 @@ public class Program
         builder.Services.AddInMemoryRateLimiting();
 
         // Add DI services
-        builder.Services.AddDbContext<MatrixCollegeContext>();
-        builder.Services.AddSingleton<TokenService>();
-        builder.Services.AddScoped<UserService>();
-        builder.Services.AddScoped<CourseService>();
-        builder.Services.AddScoped<LessonService>();
-        builder.Services.AddScoped<EnrollmentService>();
-        builder.Services.AddScoped<ProgressService>();
+        builder.Services.AddDbServices();
+        builder.Services.AddUtilityServices();
 
         // Add Fluent DI validators
-        builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<CourseValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<LessonValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentValidator>();
-        builder.Services.AddValidatorsFromAssemblyContaining<ProgressValidator>();
-
+        builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+        
         // IOptions DIs
         builder.Services.Configure<LogSettings>(
             builder.Configuration.GetSection(nameof(LogSettings)));
@@ -70,7 +59,7 @@ public class Program
         });
 
         // Add global filters
-        builder.Services.AddMvc(options => options.Filters.Add<CatchAllMiddleware>());
+        builder.Services.AddMvc(options => options.Filters.Add<CatchAllFilter>());
 
         // Ignore EF ModelState input validation (To allow Fluent to work)
         builder.Services.Configure<ApiBehaviorOptions>(options =>

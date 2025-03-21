@@ -4,7 +4,7 @@ using Serilog;
 
 namespace Matrix;
 
-public class CatchAllMiddleware : IExceptionFilter
+public class CatchAllFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
