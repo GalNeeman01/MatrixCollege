@@ -13,10 +13,12 @@ public class JwtBearerOptionsSetup
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false, // We didn't set an Issuer claim (which server/microservice issue the token), so don't validate it (otherwise validation failed).
-            ValidateAudience = false, // We didn't set an Audience claim (which server our audience browse to), so don't validate it (otherwise validation failed).
+            ValidateIssuer = true, // Validate issuer
+            ValidateAudience = true, // Validate audience
             ValidateIssuerSigningKey = true, // Validate the secret key.
-            IssuerSigningKey = symmetricSecurityKey // The secret key to validate.
+            IssuerSigningKey = symmetricSecurityKey, // The secret key to validate.
+            ValidIssuer = authSettings.Issuer, // Retrieve valid issuer from configuration file
+            ValidAudiences = authSettings.Audience // Retrieve valid audiences from configuration file
         };
     }
 }

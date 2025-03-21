@@ -36,7 +36,7 @@ public class TokenService
 
         // Claims:
         List<Claim> claims = new List<Claim> {
-            new Claim(ClaimTypes.Role, user.Role.Name)
+            new Claim(ClaimTypes.Role, user.Role.Name),
         };
 
         // Descriptor: 
@@ -47,8 +47,10 @@ public class TokenService
             SigningCredentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha512),
             Claims = new Dictionary<string, object>
             {
-                { "user", userObject }
-            }
+                { "user", userObject },
+                { JwtRegisteredClaimNames.Aud, _authSettings.Audience } // Since this could be a list, add it as a custom claim
+            },
+            Issuer = _authSettings.Issuer,
         };
 
         // Return token: 
