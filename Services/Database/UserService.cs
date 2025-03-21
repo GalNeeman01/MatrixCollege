@@ -15,11 +15,11 @@ public class UserService : IUserService
 {
     // DI's
     private MatrixCollegeContext _db;
-    private TokenService _tokenService;
+    private ITokenService _tokenService;
     private IMapper _mapper;
 
     // Constructor
-    public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper, TokenService tokenService)
+    public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper, ITokenService tokenService)
     {
         _db = matrixCollegeContext;
         _mapper = mapper;

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Matrix;
 
-public class TokenService
+public class TokenService : ITokenService
 {
     // DI's
     private readonly AuthSettings _authSettings;

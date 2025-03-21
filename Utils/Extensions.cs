@@ -16,7 +16,7 @@ public static class Extensions
     // Other services
     public static void AddUtilityServices(this IServiceCollection services)
     {
-        services.AddSingleton<TokenService>();
+        services.AddSingleton<ITokenService, TokenService>();
     }
 
     // Add CORS policies
