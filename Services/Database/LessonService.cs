@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Matrix;
 
@@ -8,14 +9,17 @@ public class LessonService : ILessonService
     // DI's
     private MatrixCollegeContext _db;
     private IProgressService _progressService;
+    private ILessonDao _lessonDao;
     private IMapper _mapper;
 
     // Constructor
-    public LessonService(MatrixCollegeContext db, IMapper mapper, IProgressService progressService)
+    public LessonService(MatrixCollegeContext db, IMapper mapper, IProgressService progressService,
+                        ILessonDao lessonDao)
     {
         _db = db;
         _progressService = progressService;
         _mapper = mapper;
+        _lessonDao = lessonDao;
     }
 
     // Methods
@@ -24,7 +28,7 @@ public class LessonService : ILessonService
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
         // Map to DTO objects
-        List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().ToListAsync();
+        List<Lesson> dbLessons = await _lessonDao.GetAllLessonsAsync();
         dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
 
         return dtoLessons;
@@ -32,35 +36,45 @@ public class LessonService : ILessonService
 
     public async Task<LessonDto?> GetLessonByIdAsync(Guid id)
     {
-        Lesson? lesson = await _db.Lessons.AsNoTracking().SingleOrDefaultAsync(lesson => lesson.Id == id);
+        Lesson? lesson = await _lessonDao.GetLessonByIdAsync(id);
 
         if (lesson == null) return null;
         
         return _mapper.Map<LessonDto>(lesson);
     }
 
-    public bool IsLessonExists(Guid lessonId)
+    public async Task<bool> IsLessonExists(Guid lessonId)
     {
-        return _db.Lessons.AsNoTracking().Any(lesson => lesson.Id == lessonId);
+        return await _lessonDao.IsLessonExists(lessonId);
     }
 
-    public async Task<List<LessonDto>> AddLessonsAsync(List<Lesson> lessons)
+    public async Task<List<LessonDto>?> AddLessonsAsync(List<LessonDto> lessonDtos)
     {
-        await _db.Lessons.AddRangeAsync(lessons);
+        // Convert to Lesson objects
+        List<Lesson> lessons = new List<Lesson>();
 
-        await _db.SaveChangesAsync();
+        foreach (LessonDto lessonDto in lessonDtos)
+        {
+            lessons.Add(_mapper.Map<Lesson>(lessonDto)); // Save to actual lessons list
+        }
+
+        // Verify all lessons have valid courseIds
+        if (! await _lessonDao.IsLessonsValidCourses(lessons))
+            return null;
+
+        await _lessonDao.AddLessonsAsync(lessons);
 
         // Map to DTO
-        List<LessonDto> lessonDtos = lessons.Select(lesson => _mapper.Map<LessonDto>(lesson)).ToList();
+        List<LessonDto> dbLessonDtos = lessons.Select(lesson => _mapper.Map<LessonDto>(lesson)).ToList();
 
-        return lessonDtos;
+        return dbLessonDtos;
     }
 
     public async Task<List<LessonDto>> GetLessonsByCourseIdAsync (Guid courseId)
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
-        List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
+        List<Lesson> dbLessons = await _lessonDao.GetLessonsByCourseIdAsync(courseId);
         dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
 
         return dtoLessons;
@@ -70,7 +84,7 @@ public class LessonService : ILessonService
     {
         List<LessonInfoDto> dtoLessons = new List<LessonInfoDto>();
 
-        List<Lesson> dbLessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
+        List<Lesson> dbLessons = await _lessonDao.GetLessonsByCourseIdAsync(courseId);
         dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonInfoDto>(lesson)));
 
         return dtoLessons;
@@ -78,51 +92,58 @@ public class LessonService : ILessonService
 
     public async Task<bool> RemoveLessonsAsync(List<Guid> lessonIds)
     {
-        List<Lesson> lessons = await _db.Lessons.AsNoTracking().Where(lesson => lessonIds.Contains(lesson.Id)).ToListAsync();
+        List<Lesson> lessons = await _lessonDao.GetLessonsByList(lessonIds);
 
         if (lessons.Count == 0)
             return false;
 
-        _db.Lessons.RemoveRange(lessons);
-
-        await _db.SaveChangesAsync();
+        await _lessonDao.RemoveLessonsAsync(lessons);
 
         return true;
     }
 
     public async Task<bool> RemoveLessonsByCourseId(Guid courseId)
     {
-        List<Lesson> lessons = await _db.Lessons.AsNoTracking().Where(lesson => lesson.CourseId == courseId).ToListAsync();
+        List<Lesson> lessons = await _lessonDao.GetLessonsByCourseIdAsync(courseId);
 
         if (lessons.Count == 0)
             return false;
 
-        // Remove related progresses
-        await _progressService.RemoveProgressByLessonsAsync(lessons);
+        // Remove with cascade and transaction
+        using IDbContextTransaction transaction = _db.Database.BeginTransaction();
+        try
+        {
+            // Remove related progresses
+            await _progressService.RemoveProgressByLessonsAsync(lessons);
 
-        _db.Lessons.RemoveRange(lessons);
+            await _lessonDao.RemoveLessonsAsync(lessons);
 
-        await _db.SaveChangesAsync();
-
-        return true;
+            await transaction.CommitAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw e;
+        }
     }
 
-    public async Task<List<LessonDto>> UpdateLessonsAsync(List<Lesson> lessons)
+    public async Task<List<LessonDto>> UpdateLessonsAsync(List<LessonDto> lessonDtos)
     {
+        // Map to Lesson objects
+        List<Lesson> lessons = new List<Lesson>();
+
+        foreach (LessonDto lessonDto in lessonDtos)
+            lessons.Add(_mapper.Map<Lesson>(lessonDto));
+
+        await _lessonDao.UpdateLessonsAsync(lessons);
+
+        // Map to Dto
         List<LessonDto> result = new List<LessonDto>();
 
         foreach (Lesson lesson in lessons)
-        {
-            _db.Lessons.Attach(lesson);
-            _db.Entry(lesson).State = EntityState.Modified;
+            result.Add(_mapper.Map<LessonDto>(lesson));
 
-            // Map to Dto
-            LessonDto dto = _mapper.Map<LessonDto>(lesson);
-            result.Add(dto);
-        }
-
-        // Commit transaction
-        await _db.SaveChangesAsync();
         return result;
     }
 }

@@ -104,7 +104,7 @@ public class UsersController : ControllerBase
         if (!_userService.IsUserExists(progressDto.UserId))
             return BadRequest(new ResourceNotFoundError(progressDto.UserId.ToString()));
 
-        if (!_lessonService.IsLessonExists(progressDto.LessonId))
+        if (!(await _lessonService.IsLessonExists(progressDto.LessonId)))
             return BadRequest(new ResourceNotFoundError(progressDto.LessonId.ToString()));
 
         ValidationResult validationResult = _progressValidator.Validate(progressDto);

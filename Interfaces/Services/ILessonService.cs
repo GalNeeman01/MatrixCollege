@@ -6,9 +6,9 @@ public interface ILessonService
 
     public Task<LessonDto?> GetLessonByIdAsync(Guid id);
 
-    public bool IsLessonExists(Guid lessonId);
+    public Task<bool> IsLessonExists(Guid lessonId);
 
-    public Task<List<LessonDto>> AddLessonsAsync(List<Lesson> lessons);
+    public Task<List<LessonDto>?> AddLessonsAsync(List<LessonDto> lessons);
 
     public Task<List<LessonDto>> GetLessonsByCourseIdAsync(Guid courseId);
 
@@ -18,5 +18,5 @@ public interface ILessonService
 
     public Task<bool> RemoveLessonsByCourseId(Guid courseId);
 
-    public Task<List<LessonDto>> UpdateLessonsAsync(List<Lesson> lessons);
+    public Task<List<LessonDto>> UpdateLessonsAsync(List<LessonDto> lessons);
 }

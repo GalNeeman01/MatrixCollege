@@ -34,8 +34,6 @@ public class LessonsController : ControllerBase
         if (lessonDtos == null || lessonDtos.Count == 0) // No data recieved
             return BadRequest(new RequestDataError());
 
-        List<Lesson> lessons = new List<Lesson>();
-
         // Validate each item to add
         foreach (LessonDto lessonDto in lessonDtos)
         {
@@ -43,14 +41,15 @@ public class LessonsController : ControllerBase
 
             if (!validationResult.IsValid)
                 return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
-            lessons.Add(_mapper.Map<Lesson>(lessonDto)); // Save to actual lessons list
         }
 
         // If all lessons are validated, call DB to add them
-        List<LessonDto> result = await _lessonService.AddLessonsAsync(lessons);
+        List<LessonDto>? result = await _lessonService.AddLessonsAsync(lessonDtos);
 
-        return Created("/", lessons);
+        if (result == null)
+            return NotFound(new GeneralError("No corresponding courses found for some of the lessons"));
+
+        return Created("/", result);
     }
 
     [Authorize(Roles = "Professor,Student")]
@@ -112,24 +111,19 @@ public class LessonsController : ControllerBase
         if (lessonDtos == null || lessonDtos.Count == 0)
             return BadRequest(new RequestDataError());
 
-        List<Lesson> lessons = new List<Lesson>();
-
         foreach (LessonDto lessonDto in lessonDtos)
         {
-            if (!_lessonService.IsLessonExists(lessonDto.Id))
+            if (!(await _lessonService.IsLessonExists(lessonDto.Id)))
                 return NotFound(new ResourceNotFoundError(lessonDto.Id.ToString()));
 
             ValidationResult validationResult = _validator.Validate(lessonDto);
 
             if (!validationResult.IsValid)
                 return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
-            // Map to Lesson object
-            lessons.Add(_mapper.Map<Lesson>(lessonDto));
         }
 
         // Call to service after each lesson was validated
-        List<LessonDto> resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessons);
+        List<LessonDto> resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessonDtos);
 
         return Ok(resultLessonsDto);
     }
