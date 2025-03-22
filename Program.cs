@@ -29,6 +29,7 @@ public class Program
         // Add DI services
         builder.Services.AddDbServices();
         builder.Services.AddUtilityServices();
+        builder.Services.AddDaoServices();
 
         // Add Fluent DI validators
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();

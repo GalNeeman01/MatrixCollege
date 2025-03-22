@@ -12,38 +12,45 @@ public class CourseService : ICourseService
     private ILessonService _lessonService;
     private IEnrollmentService _enrollmentService;
     private IMapper _mapper;
+    private ICourseDao _courseDao;
 
     // Constructor
-    public CourseService(MatrixCollegeContext db, IMapper mapper, ILessonService lessonService, IEnrollmentService enrollmentService)
+    public CourseService(MatrixCollegeContext db, IMapper mapper, ILessonService lessonService, 
+                        IEnrollmentService enrollmentService, ICourseDao courseDao)
     {
         _db = db;
         _enrollmentService = enrollmentService;
         _lessonService = lessonService;
         _mapper = mapper;
+        _courseDao = courseDao;
     }
 
     // Methods
-    public async Task<CourseDto> CreateCourseAsync(Course course)
+    public async Task<CourseDto> CreateCourseAsync(CourseDto courseDto)
     {
-        course.CreatedAt = DateTime.Now; // Set the current time
+        courseDto.CreatedAt = DateTime.Now; // Set the current time
 
-        await _db.Courses.AddAsync(course);
+        // Map Dto to Course object
+        Course course = _mapper.Map<Course>(courseDto);
 
-        await _db.SaveChangesAsync();
+        // Call DB with DAO
+        Course dbCourse = await _courseDao.CreateCourseAsync(course);
 
-        CourseDto courseDto = _mapper.Map<CourseDto>(course);
+        // Return DB object
+        CourseDto result = _mapper.Map<CourseDto>(dbCourse);
 
-        return courseDto;
+        return result;
     }
 
     public async Task<List<CourseDto>> GetAllCoursesAsync()
     {
+        // Retrieve data from DB
+        List<Course> dbCourses = await _courseDao.GetAllCoursesAsync();
+
         // Dtos to return
         List<CourseDto> courses = new List<CourseDto>();
 
-        // Run through returned data and convert to DTO objects
-        List<Course> dbCourses = await _db.Courses.AsNoTracking().ToListAsync();
-
+        // Convert to DTO
         dbCourses.ForEach(course =>
         {
             courses.Add(_mapper.Map<CourseDto>(course));
@@ -54,7 +61,8 @@ public class CourseService : ICourseService
 
     public async Task<CourseDto?> GetCourseByIdAsync(Guid courseId)
     {
-        Course? dbCourse = await _db.Courses.AsNoTracking().SingleOrDefaultAsync(course => course.Id == courseId);
+        // Retreive course from DB
+        Course? dbCourse = await _courseDao.GetCourseByIdAsync(courseId);
 
         if (dbCourse == null) return null;
 
@@ -63,7 +71,7 @@ public class CourseService : ICourseService
 
     public async Task<CourseDto?> GetCourseByLessonIdAsync(Guid lessonId)
     {
-        Course? dbCourse = await _db.Courses.AsNoTracking().Include(c => c.Lessons).SingleOrDefaultAsync(course => course.Lessons!.Any(l => l.Id == lessonId));
+        Course? dbCourse = await _courseDao.GetCourseByLessonIdAsync(lessonId);
 
         if (dbCourse == null) return null;
 
@@ -73,17 +81,18 @@ public class CourseService : ICourseService
     // Return whether a course exists in the DB
     public async Task<bool> IsCourseExistsAsync(Guid courseId)
     {
-        return await _db.Courses.AsNoTracking().AnyAsync(course => course.Id == courseId);
+        return await _courseDao.IsCourseExistsAsync(courseId);
     }
 
     public async Task<bool> RemoveCourseAsync(Guid courseId)
     {
-        // Use a transaction to verify full deletion of all related items
-        await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
+        using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
 
         try
         {
-            Course course = await _db.Courses.AsNoTracking().SingleAsync(course => course.Id == courseId);
+            // Return false if the course does not exist
+            if (!(await IsCourseExistsAsync(courseId)))
+                return false;
 
             // Remove related lessons
             await _lessonService.RemoveLessonsByCourseId(courseId);
@@ -92,28 +101,29 @@ public class CourseService : ICourseService
             await _enrollmentService.RemoveEnrollmentsByCourseAsync(courseId);
 
             // Remove course
-            _db.Courses.Remove(course);
+            await _courseDao.RemoveCourseAsync(courseId);
 
-            await _db.SaveChangesAsync();
             await transaction.CommitAsync();
             return true;
         }
         catch (Exception e)
         {
+            // Rollback transaction and send exception to catch-all filter
             await transaction.RollbackAsync();
-            Log.Error(e.Message);
-            return false;
+            throw e;
         }
     }
 
-    public async Task<CourseDto?> UpdateCourseAsync(Course course)
+    public async Task<CourseDto?> UpdateCourseAsync(CourseDto courseDto)
     {
+        // Map to Course object
+        Course course = _mapper.Map<Course>(courseDto);
+
         if (!(await IsCourseExistsAsync(course.Id)))
             return null;
 
-        _db.Courses.Attach(course);
-        _db.Entry(course).State = EntityState.Modified;
-        await _db.SaveChangesAsync();
+        // Apply changes in DB
+        await _courseDao.UpdateCourseAsync(course);
 
         CourseDto dto = _mapper.Map<CourseDto>(course);
 

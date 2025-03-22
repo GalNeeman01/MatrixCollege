@@ -19,6 +19,11 @@ public static class Extensions
         services.AddSingleton<ITokenService, TokenService>();
     }
 
+    public static void AddDaoServices(this IServiceCollection services)
+    {
+        services.AddScoped<ICourseDao, CourseDao>();
+    }
+
     // Add CORS policies
     public static void AddCorsPolicies(this IServiceCollection services)
     {

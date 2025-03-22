@@ -2,7 +2,7 @@
 
 public interface ICourseService
 {
-    public Task<CourseDto> CreateCourseAsync(Course course);
+    public Task<CourseDto> CreateCourseAsync(CourseDto course);
 
     public Task<List<CourseDto>> GetAllCoursesAsync();
 
@@ -14,5 +14,5 @@ public interface ICourseService
 
     public Task<bool> RemoveCourseAsync(Guid courseId);
 
-    public Task<CourseDto?> UpdateCourseAsync(Course course);
+    public Task<CourseDto?> UpdateCourseAsync(CourseDto course);
 }

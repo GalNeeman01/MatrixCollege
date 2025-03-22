@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +12,12 @@ public class CoursesController : ControllerBase
     // DI's
     private ICourseService _courseService;
     private IValidator<CourseDto> _validator;
-    private IMapper _mapper;
 
     // Constructor
-    public CoursesController(ICourseService courseService, IValidator<CourseDto> validator, IMapper mapper)
+    public CoursesController(ICourseService courseService, IValidator<CourseDto> validator)
     {
         _courseService = courseService;
         _validator = validator;
-        _mapper = mapper;
     }
 
     // Routes
@@ -34,11 +31,8 @@ public class CoursesController : ControllerBase
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        // Map Dto to Course object
-        Course course = _mapper.Map<Course>(courseDto);
-
         // Retreive created courseDto
-        CourseDto createdCourse = await _courseService.CreateCourseAsync(course);
+        CourseDto createdCourse = await _courseService.CreateCourseAsync(courseDto);
 
         return Created("/", createdCourse);
     }
@@ -77,14 +71,10 @@ public class CoursesController : ControllerBase
     [HttpDelete("{courseId}")]
     public async Task<IActionResult> RemoveCourseAsync([FromRoute] Guid courseId)
     {
-        if (!(await _courseService.IsCourseExistsAsync(courseId)))
-            return NotFound(new ResourceNotFoundError(courseId.ToString()));
-
         bool result = await _courseService.RemoveCourseAsync(courseId);
 
-        // If deletion failed (due to cascading problems)
         if (!result)
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new GeneralError("Some error has occured.. please try again later."));
+            return NotFound(new ResourceNotFoundError(courseId.ToString()));
 
         return NoContent();
     }
@@ -102,13 +92,10 @@ public class CoursesController : ControllerBase
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        // Map to Course object
-        Course course = _mapper.Map<Course>(courseDto);
-
-        CourseDto? result = await _courseService.UpdateCourseAsync(course);
+        CourseDto? result = await _courseService.UpdateCourseAsync(courseDto);
 
         if (result == null)
-            return BadRequest(new ResourceNotFoundError(courseDto.Id.ToString()));
+            return NotFound(new ResourceNotFoundError(courseDto.Id.ToString()));
 
         return NoContent();
     }
