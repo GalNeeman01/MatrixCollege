@@ -121,7 +121,7 @@ public class UsersController : ControllerBase
     [HttpGet("progress/{userId}")]
     public async Task<IActionResult> GetUserProgressAsync([FromRoute] Guid userId)
     {
-        return Ok(await _progressService.GetUserProgressAsync(userId));
+        return Ok(await _progressService.GetUserProgressDtoAsync(userId));
     }
 
     [Authorize(Roles = "Student")]
@@ -172,13 +172,10 @@ public class UsersController : ControllerBase
     [HttpDelete("enrollments/{enrollmentId}")]
     public async Task<IActionResult> RemoveEnrollmentAsync([FromRoute] Guid enrollmentId)
     {
-        if (!(await _enrollmentService.IsEnrollmentExists(enrollmentId)))
-            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
-
         bool result = await _enrollmentService.RemoveEnrollmentAsync(enrollmentId);
 
         if (!result)
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new GeneralError("Some error occured.. Please try again later"));
+            return NotFound(new ResourceNotFoundError(enrollmentId.ToString()));
 
         return NoContent();
     }

@@ -11,12 +11,19 @@ public class EnrollmentService : IEnrollmentService
     // DI's
     private MatrixCollegeContext _db;
     private IMapper _mapper;
+    private IEnrollmentDao _enrollmentDao;
+    private IProgressService _progressService;
+    private ILessonService _lessonService;
 
     // Constructor
-    public EnrollmentService(MatrixCollegeContext db, IMapper mapper)
+    public EnrollmentService(MatrixCollegeContext db, IMapper mapper, IEnrollmentDao enrollmentDao,
+                            IProgressService progressService, ILessonService lessonService)
     {
         _db = db;
         _mapper = mapper;
+        _enrollmentDao = enrollmentDao;
+        _progressService = progressService;
+        _lessonService = lessonService;
     }
 
     // Methods
@@ -24,9 +31,7 @@ public class EnrollmentService : IEnrollmentService
     {
         DateTime now = DateTime.Now; // Store current time
 
-        await _db.Enrollments.AddAsync(enrollment);
-
-        await _db.SaveChangesAsync();
+        await _enrollmentDao.AddEnrollmentAsync(enrollment);
 
         // Map to DTO
         EnrollmentDto dto = _mapper.Map<EnrollmentDto>(enrollment);
@@ -38,24 +43,27 @@ public class EnrollmentService : IEnrollmentService
     {
         List<EnrollmentDto> dtoEnrollments = new List<EnrollmentDto>();
 
-        List<Enrollment> dbEnrollments = await _db.Enrollments.AsNoTracking().Where(enr => enr.UserId == userId).ToListAsync();
+        List<Enrollment> dbEnrollments = await _enrollmentDao.GetEnrollmentsByUserIdAsync(userId);
         dbEnrollments.ForEach(enr => dtoEnrollments.Add(_mapper.Map<EnrollmentDto>(enr)));
 
         return dtoEnrollments;
     }
 
-    public async Task<bool> IsEnrollmentExists(Guid enrollmentId)
+    public async Task<bool> IsEnrollmentExistsAsync(Guid enrollmentId)
     {
-        return await _db.Enrollments.AnyAsync(en => en.Id == enrollmentId);
+        return await _enrollmentDao.IsEnrollmentExists(enrollmentId);
     }
 
     public async Task<bool> RemoveEnrollmentAsync(Guid id)
     {
+        if (!await IsEnrollmentExistsAsync(id))
+            return false;
+
         await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
 
         try
         {
-            Enrollment enrollment = await _db.Enrollments.SingleAsync(e => e.Id == id);
+            Enrollment enrollment = (await _enrollmentDao.GetEnrollmentByIdAsync(id))!; // Already made sure it exists so not null
             
             // Retrieve enrolled course
             Course? dbCourse = await _db.Courses.SingleOrDefaultAsync(c => c.Id == enrollment.CourseId);
@@ -63,20 +71,19 @@ public class EnrollmentService : IEnrollmentService
             if (dbCourse != null)
             {
                 // Retrieve enrolled lessons
-                List<Lesson> dbLessons = await _db.Lessons.Where(lesson => lesson.CourseId == enrollment.CourseId).ToListAsync();
+                List<Lesson> dbLessons = await _lessonService.GetLessonsByCourseIdAsync(enrollment.CourseId);
 
                 // Retreive progresses with matching enrollment user
-                List<Progress> dbProgresses = await _db.Progresses.Where(p => p.UserId == enrollment.UserId).ToListAsync();
+                List<Progress> dbProgresses = await _progressService.GetUserProgressAsync(enrollment.UserId);
 
                 // Filter progresses to only contain matches with lessons
                 List<Guid> lessonsId = dbLessons.Select(l => l.Id).ToList();
                 List<Progress> progresses = dbProgresses.Where(p => lessonsId.Contains(p.LessonId)).ToList();
 
-                _db.Progresses.RemoveRange(progresses);
+                await _progressService.RemoveProgressesAsync(progresses);
             }
 
-            _db.Enrollments.Remove(enrollment);
-            await _db.SaveChangesAsync();
+            await _enrollmentDao.RemoveEnrollmentAsync(enrollment.Id);
 
             await transaction.CommitAsync();
             return true;
@@ -85,15 +92,27 @@ public class EnrollmentService : IEnrollmentService
         {
             // Rollback and log error
             await transaction.RollbackAsync();
-            Log.Error(e.Message);
-
-            return false;
+            throw e;
         }
     }
 
     public async Task RemoveEnrollmentsByCourseAsync(Guid courseId)
     {
-        _db.Enrollments.RemoveRange(await _db.Enrollments.Where(e => e.CourseId == courseId).ToListAsync());
-        await _db.SaveChangesAsync();
+        await using IDbContextTransaction transaction = _db.Database.BeginTransaction();
+
+        try
+        {
+            List<Enrollment> enrollments = await _enrollmentDao.GetEnrollmentsByCourseId(courseId);
+
+            foreach (Enrollment enrollment in enrollments)
+                await RemoveEnrollmentAsync(enrollment.Id);
+
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw e;
+        }
     }
 }

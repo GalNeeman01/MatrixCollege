@@ -17,7 +17,7 @@ public class ProgressService : IProgressService
     }
 
     // Methods
-    public async Task<List<ProgressDto>> GetUserProgressAsync(Guid userId)
+    public async Task<List<ProgressDto>> GetUserProgressDtoAsync(Guid userId)
     {
         List<ProgressDto> dtoProgresses = new List<ProgressDto>();
 
@@ -49,5 +49,15 @@ public class ProgressService : IProgressService
             progressesToDelete.AddRange(await _progressDao.GetProgressesByLesson(lesson.Id));
 
         await _progressDao.RemoveProgressesAsync(progressesToDelete);
+    }
+
+    public async Task RemoveProgressesAsync(List<Progress> progresses)
+    {
+        await _progressDao.RemoveProgressesAsync(progresses);
+    }
+
+    public async Task<List<Progress>> GetUserProgressAsync(Guid userId)
+    {
+        return await _progressDao.GetUserProgressAsync(userId); ;
     }
 }

@@ -70,7 +70,7 @@ public class LessonService : ILessonService
         return dbLessonDtos;
     }
 
-    public async Task<List<LessonDto>> GetLessonsByCourseIdAsync (Guid courseId)
+    public async Task<List<LessonDto>> GetLessonsDtoByCourseIdAsync (Guid courseId)
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
@@ -78,6 +78,11 @@ public class LessonService : ILessonService
         dbLessons.ForEach(lesson => dtoLessons.Add(_mapper.Map<LessonDto>(lesson)));
 
         return dtoLessons;
+    }
+
+    public async Task<List<Lesson>> GetLessonsByCourseIdAsync(Guid courseId)
+    {
+        return await _lessonDao.GetLessonsByCourseIdAsync(courseId);
     }
 
     public async Task<List<LessonInfoDto>> GetLessonsInfoByCourseIdAsync(Guid courseId)

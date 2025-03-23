@@ -78,7 +78,7 @@ public class LessonsController : ControllerBase
     [HttpGet("course/{courseId}")]
     public async Task<IActionResult> GetLessonsByCourseIdAsync([FromRoute] Guid courseId)
     {
-        return Ok(await _lessonService.GetLessonsByCourseIdAsync(courseId));
+        return Ok(await _lessonService.GetLessonsDtoByCourseIdAsync(courseId));
     }
 
     [HttpGet("course/{courseId}/preview")]

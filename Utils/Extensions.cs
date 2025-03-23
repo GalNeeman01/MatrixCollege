@@ -25,6 +25,7 @@ public static class Extensions
         services.AddScoped<ILessonDao, LessonDao>();
         services.AddScoped<IUserDao, UserDao>();
         services.AddScoped<IProgressDao, ProgressDao>();
+        services.AddScoped<IEnrollmentDao, EnrollmentDao>();
     }
 
     // Add CORS policies
