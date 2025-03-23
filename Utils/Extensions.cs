@@ -11,6 +11,8 @@ public static class Extensions
         services.AddScoped<ILessonService, LessonService>();
         services.AddScoped<IEnrollmentService, EnrollmentService>();
         services.AddScoped<IProgressService, ProgressService>();
+
+        services.AddScoped<IValidationService, ValidationService>();
     }
 
     // Other services

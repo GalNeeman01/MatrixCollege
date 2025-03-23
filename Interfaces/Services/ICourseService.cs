@@ -10,8 +10,6 @@ public interface ICourseService
 
     public Task<CourseDto?> GetCourseByLessonIdAsync(Guid lessonId);
 
-    public Task<bool> IsCourseExistsAsync(Guid courseId);
-
     public Task<bool> RemoveCourseAsync(Guid courseId);
 
     public Task<CourseDto?> UpdateCourseAsync(CourseDto course);

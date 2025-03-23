@@ -24,9 +24,6 @@ public class UsersController : ControllerBase
     private IValidator<EnrollmentDto> _enrollmentValidator;
     private IValidator<Credentials> _credentialsValidator;
 
-    // Mappers
-    private IMapper _mapper;
-
     // Constructor
     public UsersController(
         IUserService userService, 
@@ -37,8 +34,7 @@ public class UsersController : ControllerBase
         IValidator<CreateUserDto> userValidator, 
         IValidator<ProgressDto> progressValidator, 
         IValidator<EnrollmentDto> enrollmentValidator,
-        IValidator<Credentials> credentialsValidator,
-        IMapper mapper)
+        IValidator<Credentials> credentialsValidator)
     {
         _userService = userService;
         _courseService = courseService;
@@ -49,7 +45,6 @@ public class UsersController : ControllerBase
         _credentialsValidator = credentialsValidator;
         _enrollmentService = enrollmentService;
         _progressService = progressService;
-        _mapper = mapper;
     }
 
     // Routes
@@ -81,7 +76,6 @@ public class UsersController : ControllerBase
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-
         string? token = await _userService.LoginAsync(credentials);
 
         // Service will return null for incorrect credentials
@@ -100,19 +94,15 @@ public class UsersController : ControllerBase
         if (progressDto == null)
             return BadRequest(new RequestDataError());
 
-        if (!(await _userService.IsUserExistsAsync(progressDto.UserId)))
-            return BadRequest(new ResourceNotFoundError(progressDto.UserId.ToString()));
-
-        if (!(await _lessonService.IsLessonExists(progressDto.LessonId)))
-            return BadRequest(new ResourceNotFoundError(progressDto.LessonId.ToString()));
-
         ValidationResult validationResult = _progressValidator.Validate(progressDto);
 
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        Progress progress = _mapper.Map<Progress>(progressDto);
-        ProgressDto resultProgress = await _progressService.AddProgressAsync(progress);
+        ProgressDto? resultProgress = await _progressService.AddProgressAsync(progressDto);
+
+        if (resultProgress == null)
+            return NotFound(new GeneralError("Either the provided course or the provided user do not exist."));
 
         return Created("/", resultProgress);
     }
@@ -121,7 +111,12 @@ public class UsersController : ControllerBase
     [HttpGet("progress/{userId}")]
     public async Task<IActionResult> GetUserProgressAsync([FromRoute] Guid userId)
     {
-        return Ok(await _progressService.GetUserProgressDtoAsync(userId));
+        List<ProgressDto>? progresses = await _progressService.GetUserProgressDtoAsync(userId);
+
+        if (progresses == null)
+            return NotFound(new ResourceNotFoundError(userId.ToString()));
+
+        return Ok(progresses);
     }
 
     [Authorize(Roles = "Student")]
@@ -132,23 +127,17 @@ public class UsersController : ControllerBase
         if (enrollmentDto == null)
             return BadRequest(new RequestDataError());
 
-        if (await _courseService.IsCourseExistsAsync(enrollmentDto.CourseId) == false)
-            return BadRequest(new ResourceNotFoundError(enrollmentDto.CourseId.ToString()));
-
-        if(!(await _userService.IsUserExistsAsync(enrollmentDto.UserId)))
-            return BadRequest(new ResourceNotFoundError(enrollmentDto.UserId.ToString()));
-
         // Fluent validation
         ValidationResult validationResult = _enrollmentValidator.Validate(enrollmentDto);
 
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
+        
+        // Call service
+        EnrollmentDto? resultEnrollment = await _enrollmentService.EnrollAsync(enrollmentDto);
 
-        // Map to Enrollment
-        Enrollment enrollment = _mapper.Map<Enrollment>(enrollmentDto);
-
-        // Call to service
-        EnrollmentDto resultEnrollment = await _enrollmentService.EnrollAsync(enrollment);
+        if (resultEnrollment == null)
+            return NotFound(new GeneralError("Either the provided course or the provided user do not exist."));
 
         return Created("/", resultEnrollment);
     }
@@ -157,12 +146,9 @@ public class UsersController : ControllerBase
     [HttpGet("enrollments/{userId}")]
     public async Task<IActionResult> GetUserEnrollmentsAsync([FromRoute] Guid userId)
     {
-        if (!(await _userService.IsUserExistsAsync(userId)))
-            return NotFound(new ResourceNotFoundError(userId.ToString()));
+        List<EnrollmentDto>? dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserIdAsync(userId);
 
-        List<EnrollmentDto> dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserIdAsync(userId);
-
-        if (dtoEnrollments == null)
+        if (dtoEnrollments == null) // Will receive null from service if no user was found for given ID
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
         return Ok(dtoEnrollments);

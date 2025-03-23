@@ -2,11 +2,9 @@
 
 public interface IEnrollmentService
 {
-    public Task<EnrollmentDto> EnrollAsync(Enrollment enrollment);
+    public Task<EnrollmentDto?> EnrollAsync(EnrollmentDto enrollment);
 
-    public Task<List<EnrollmentDto>> GetEnrollmentsByUserIdAsync(Guid userId);
-
-    public Task<bool> IsEnrollmentExistsAsync(Guid enrollmentId);
+    public Task<List<EnrollmentDto>?> GetEnrollmentsByUserIdAsync(Guid userId);
 
     public Task<bool> RemoveEnrollmentAsync(Guid id);
 

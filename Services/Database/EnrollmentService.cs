@@ -14,33 +14,50 @@ public class EnrollmentService : IEnrollmentService
     private IEnrollmentDao _enrollmentDao;
     private IProgressService _progressService;
     private ILessonService _lessonService;
+    private IValidationService _validationService;
 
     // Constructor
     public EnrollmentService(MatrixCollegeContext db, IMapper mapper, IEnrollmentDao enrollmentDao,
-                            IProgressService progressService, ILessonService lessonService)
+                            IProgressService progressService, ILessonService lessonService, IValidationService validationService)
     {
         _db = db;
         _mapper = mapper;
         _enrollmentDao = enrollmentDao;
         _progressService = progressService;
         _lessonService = lessonService;
+        _validationService = validationService;
     }
 
     // Methods
-    public async Task<EnrollmentDto> EnrollAsync(Enrollment enrollment)
+    public async Task<EnrollmentDto?> EnrollAsync(EnrollmentDto enrollmentDto)
     {
+        // Verify course and users exist
+        if (!(await _validationService.IsUserExistsAsync(enrollmentDto.UserId)))
+            return null;
+
+        if (!(await _validationService.IsCourseExistsAsync(enrollmentDto.CourseId)))
+            return null;
+
+        // Update date data
         DateTime now = DateTime.Now; // Store current time
 
+        // Map to DB model
+        Enrollment enrollment = _mapper.Map<Enrollment>(enrollmentDto);
+
+        // Apply to DB
         await _enrollmentDao.AddEnrollmentAsync(enrollment);
 
         // Map to DTO
-        EnrollmentDto dto = _mapper.Map<EnrollmentDto>(enrollment);
+        EnrollmentDto result = _mapper.Map<EnrollmentDto>(enrollment);
 
-        return dto;
+        return result;
     }
 
-    public async Task<List<EnrollmentDto>> GetEnrollmentsByUserIdAsync(Guid userId)
+    public async Task<List<EnrollmentDto>?> GetEnrollmentsByUserIdAsync(Guid userId)
     {
+        if (!(await _validationService.IsUserExistsAsync(userId)))
+            return null;
+
         List<EnrollmentDto> dtoEnrollments = new List<EnrollmentDto>();
 
         List<Enrollment> dbEnrollments = await _enrollmentDao.GetEnrollmentsByUserIdAsync(userId);
@@ -49,14 +66,9 @@ public class EnrollmentService : IEnrollmentService
         return dtoEnrollments;
     }
 
-    public async Task<bool> IsEnrollmentExistsAsync(Guid enrollmentId)
-    {
-        return await _enrollmentDao.IsEnrollmentExists(enrollmentId);
-    }
-
     public async Task<bool> RemoveEnrollmentAsync(Guid id)
     {
-        if (!await IsEnrollmentExistsAsync(id))
+        if (!await _validationService.IsEnrollmentExistsAsync(id))
             return false;
 
         await using IDbContextTransaction transaction = _db.Database.BeginTransaction();

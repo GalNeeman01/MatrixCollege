@@ -11,18 +11,20 @@ public class CourseService : ICourseService
     private MatrixCollegeContext _db;
     private ILessonService _lessonService;
     private IEnrollmentService _enrollmentService;
+    private IValidationService _validationService;
     private IMapper _mapper;
     private ICourseDao _courseDao;
 
     // Constructor
     public CourseService(MatrixCollegeContext db, IMapper mapper, ILessonService lessonService, 
-                        IEnrollmentService enrollmentService, ICourseDao courseDao)
+                        IEnrollmentService enrollmentService, ICourseDao courseDao, IValidationService validationService)
     {
         _db = db;
         _enrollmentService = enrollmentService;
         _lessonService = lessonService;
         _mapper = mapper;
         _courseDao = courseDao;
+        _validationService = validationService;
     }
 
     // Methods
@@ -78,12 +80,6 @@ public class CourseService : ICourseService
         return _mapper.Map<CourseDto>(dbCourse);
     }
 
-    // Return whether a course exists in the DB
-    public async Task<bool> IsCourseExistsAsync(Guid courseId)
-    {
-        return await _courseDao.IsCourseExistsAsync(courseId);
-    }
-
     public async Task<bool> RemoveCourseAsync(Guid courseId)
     {
         using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
@@ -91,7 +87,7 @@ public class CourseService : ICourseService
         try
         {
             // Return false if the course does not exist
-            if (!(await IsCourseExistsAsync(courseId)))
+            if (!(await _validationService.IsCourseExistsAsync(courseId)))
                 return false;
 
             // Remove related lessons
@@ -119,7 +115,7 @@ public class CourseService : ICourseService
         // Map to Course object
         Course course = _mapper.Map<Course>(courseDto);
 
-        if (!(await IsCourseExistsAsync(course.Id)))
+        if (!(await _validationService.IsCourseExistsAsync(course.Id)))
             return null;
 
         // Apply changes in DB

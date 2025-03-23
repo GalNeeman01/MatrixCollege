@@ -6,7 +6,5 @@ public interface IUserService
 
     public Task<string?> LoginAsync(Credentials credentials);
 
-    public Task<bool> IsUserExistsAsync(Guid id);
-
     public Task<bool> IsEmailUniqueAsync(string email);
 }

@@ -60,11 +60,6 @@ public class UserService : IUserService
         return _tokenService.GetNewToken(dbUser);
     }
 
-    public async Task<bool> IsUserExistsAsync(Guid id)
-    {
-        return await _userDao.IsUserExistsAsync(id);
-    }
-
     public async Task<bool> IsEmailUniqueAsync (string email)
     {
         return !(await _userDao.IsEmailExistsAsync(email)); // Unique = not exists 👍

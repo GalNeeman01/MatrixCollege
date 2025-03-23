@@ -17,7 +17,8 @@ public class LessonsController : ControllerBase
     private IValidator<LessonDto> _validator;
 
     // Constructor
-    public LessonsController(ILessonService lessonService, IValidator<LessonDto> validator, IMapper mapper, ICourseService courseService)
+    public LessonsController(ILessonService lessonService, IValidator<LessonDto> validator, 
+                            IMapper mapper, ICourseService courseService)
     {
         _lessonService = lessonService;
         _validator = validator;
@@ -113,9 +114,6 @@ public class LessonsController : ControllerBase
 
         foreach (LessonDto lessonDto in lessonDtos)
         {
-            if (!(await _lessonService.IsLessonExists(lessonDto.Id)))
-                return NotFound(new ResourceNotFoundError(lessonDto.Id.ToString()));
-
             ValidationResult validationResult = _validator.Validate(lessonDto);
 
             if (!validationResult.IsValid)
@@ -124,6 +122,9 @@ public class LessonsController : ControllerBase
 
         // Call to service after each lesson was validated
         List<LessonDto> resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessonDtos);
+
+        if (resultLessonsDto == null)
+            return NotFound(new GeneralError("One of the provided lessons does not exist."));
 
         return Ok(resultLessonsDto);
     }

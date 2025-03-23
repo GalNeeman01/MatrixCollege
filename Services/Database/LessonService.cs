@@ -9,17 +9,19 @@ public class LessonService : ILessonService
     // DI's
     private MatrixCollegeContext _db;
     private IProgressService _progressService;
+    private IValidationService _validationService;
     private ILessonDao _lessonDao;
     private IMapper _mapper;
 
     // Constructor
     public LessonService(MatrixCollegeContext db, IMapper mapper, IProgressService progressService,
-                        ILessonDao lessonDao)
+                        ILessonDao lessonDao, IValidationService validationService)
     {
         _db = db;
         _progressService = progressService;
         _mapper = mapper;
         _lessonDao = lessonDao;
+        _validationService = validationService;
     }
 
     // Methods
@@ -41,11 +43,6 @@ public class LessonService : ILessonService
         if (lesson == null) return null;
         
         return _mapper.Map<LessonDto>(lesson);
-    }
-
-    public async Task<bool> IsLessonExists(Guid lessonId)
-    {
-        return await _lessonDao.IsLessonExists(lessonId);
     }
 
     public async Task<List<LessonDto>?> AddLessonsAsync(List<LessonDto> lessonDtos)
@@ -133,13 +130,18 @@ public class LessonService : ILessonService
         }
     }
 
-    public async Task<List<LessonDto>> UpdateLessonsAsync(List<LessonDto> lessonDtos)
+    public async Task<List<LessonDto>?> UpdateLessonsAsync(List<LessonDto> lessonDtos)
     {
         // Map to Lesson objects
         List<Lesson> lessons = new List<Lesson>();
 
         foreach (LessonDto lessonDto in lessonDtos)
+        {
+            if (!(await _validationService.IsLessonExistsAsync(lessonDto.Id)))
+                return null; // Break and return null if one of the lessons does not exist
+
             lessons.Add(_mapper.Map<Lesson>(lessonDto));
+        }
 
         await _lessonDao.UpdateLessonsAsync(lessons);
 
