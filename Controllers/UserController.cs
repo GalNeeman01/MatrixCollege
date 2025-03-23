@@ -15,30 +15,24 @@ public class UsersController : ControllerBase
     private IUserService _userService;
     private IEnrollmentService _enrollmentService;
     private IProgressService _progressService;
-    private ICourseService _courseService;
-    private ILessonService _lessonService;
 
     // Validators
     private IValidator<CreateUserDto> _userValidator;
     private IValidator<ProgressDto> _progressValidator;
     private IValidator<EnrollmentDto> _enrollmentValidator;
     private IValidator<Credentials> _credentialsValidator;
-
+    
     // Constructor
     public UsersController(
         IUserService userService, 
         IEnrollmentService enrollmentService,
         IProgressService progressService,
-        ICourseService courseService,
-        ILessonService lessonService,
         IValidator<CreateUserDto> userValidator, 
         IValidator<ProgressDto> progressValidator, 
         IValidator<EnrollmentDto> enrollmentValidator,
         IValidator<Credentials> credentialsValidator)
     {
         _userService = userService;
-        _courseService = courseService;
-        _lessonService = lessonService;
         _userValidator = userValidator;
         _progressValidator = progressValidator;
         _enrollmentValidator = enrollmentValidator;
@@ -80,7 +74,7 @@ public class UsersController : ControllerBase
 
         // Service will return null for incorrect credentials
         if (token == null)
-            return BadRequest(new ValidationError<string>("Incorrect email or password."));
+            return BadRequest(new GeneralError("Incorrect email or password."));
 
         // Return an object so Front-End can parse it as json
         return Ok(token);

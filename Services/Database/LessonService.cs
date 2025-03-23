@@ -67,8 +67,11 @@ public class LessonService : ILessonService
         return dbLessonDtos;
     }
 
-    public async Task<List<LessonDto>> GetLessonsDtoByCourseIdAsync (Guid courseId)
+    public async Task<List<LessonDto>?> GetLessonsDtoByCourseIdAsync (Guid courseId)
     {
+        if (!(await _validationService.IsCourseExistsAsync(courseId)))
+            return null;
+
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
         List<Lesson> dbLessons = await _lessonDao.GetLessonsByCourseIdAsync(courseId);
@@ -82,8 +85,11 @@ public class LessonService : ILessonService
         return await _lessonDao.GetLessonsByCourseIdAsync(courseId);
     }
 
-    public async Task<List<LessonInfoDto>> GetLessonsInfoByCourseIdAsync(Guid courseId)
+    public async Task<List<LessonInfoDto>?> GetLessonsInfoByCourseIdAsync(Guid courseId)
     {
+        if (!(await _validationService.IsCourseExistsAsync(courseId)))
+            return null;
+
         List<LessonInfoDto> dtoLessons = new List<LessonInfoDto>();
 
         List<Lesson> dbLessons = await _lessonDao.GetLessonsByCourseIdAsync(courseId);

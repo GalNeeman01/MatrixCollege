@@ -8,11 +8,11 @@ public interface ILessonService
 
     public Task<List<LessonDto>?> AddLessonsAsync(List<LessonDto> lessons);
 
-    public Task<List<LessonDto>> GetLessonsDtoByCourseIdAsync(Guid courseId);
+    public Task<List<LessonDto>?> GetLessonsDtoByCourseIdAsync(Guid courseId);
 
     public Task<List<Lesson>> GetLessonsByCourseIdAsync(Guid courseId);
 
-    public Task<List<LessonInfoDto>> GetLessonsInfoByCourseIdAsync(Guid courseId);
+    public Task<List<LessonInfoDto>?> GetLessonsInfoByCourseIdAsync(Guid courseId);
 
     public Task<bool> RemoveLessonsAsync(List<Guid> lessonIds);
 

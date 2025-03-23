@@ -12,18 +12,13 @@ public class LessonsController : ControllerBase
 {
     // DI's
     private ILessonService _lessonService;
-    private ICourseService _courseService;
-    private IMapper _mapper;
     private IValidator<LessonDto> _validator;
 
     // Constructor
-    public LessonsController(ILessonService lessonService, IValidator<LessonDto> validator, 
-                            IMapper mapper, ICourseService courseService)
+    public LessonsController(ILessonService lessonService, IValidator<LessonDto> validator)
     {
         _lessonService = lessonService;
         _validator = validator;
-        _mapper = mapper;
-        _courseService = courseService;
     }
 
     // Routes
@@ -79,13 +74,23 @@ public class LessonsController : ControllerBase
     [HttpGet("course/{courseId}")]
     public async Task<IActionResult> GetLessonsByCourseIdAsync([FromRoute] Guid courseId)
     {
-        return Ok(await _lessonService.GetLessonsDtoByCourseIdAsync(courseId));
+        List<LessonDto>? lessons = await _lessonService.GetLessonsDtoByCourseIdAsync(courseId);
+
+        if (lessons == null)
+            return NotFound(new ResourceNotFoundError(courseId.ToString()));
+
+        return Ok(lessons);
     }
 
     [HttpGet("course/{courseId}/preview")]
     public async Task<IActionResult> GetLessonsInfoByCourseIdAsync([FromRoute] Guid courseId)
     {
-        return Ok(await _lessonService.GetLessonsInfoByCourseIdAsync(courseId));
+        List<LessonInfoDto>? lessons = await _lessonService.GetLessonsInfoByCourseIdAsync(courseId);
+
+        if (lessons == null)
+            return NotFound(new ResourceNotFoundError(courseId.ToString()));
+
+        return Ok(lessons);
     }
 
     [Authorize(Roles = "Professor")]
@@ -121,7 +126,7 @@ public class LessonsController : ControllerBase
         }
 
         // Call to service after each lesson was validated
-        List<LessonDto> resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessonDtos);
+        List<LessonDto>? resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessonDtos);
 
         if (resultLessonsDto == null)
             return NotFound(new GeneralError("One of the provided lessons does not exist."));
