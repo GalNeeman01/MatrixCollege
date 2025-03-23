@@ -25,7 +25,7 @@ public class LessonService : ILessonService
     }
 
     // Methods
-    public async Task<List<LessonDto>> GetAllLessonsAsync()
+    public async Task<List<LessonDto>> GetAllLessonsDtoAsync()
     {
         List<LessonDto> dtoLessons = new List<LessonDto>();
 
@@ -36,7 +36,7 @@ public class LessonService : ILessonService
         return dtoLessons;
     }
 
-    public async Task<LessonDto?> GetLessonByIdAsync(Guid id)
+    public async Task<LessonDto?> GetLessonDtoByIdAsync(Guid id)
     {
         Lesson? lesson = await _lessonDao.GetLessonByIdAsync(id);
 

@@ -53,7 +53,7 @@ public class EnrollmentService : IEnrollmentService
         return result;
     }
 
-    public async Task<List<EnrollmentDto>?> GetEnrollmentsByUserIdAsync(Guid userId)
+    public async Task<List<EnrollmentDto>?> GetEnrollmentsDtoByUserIdAsync(Guid userId)
     {
         if (!(await _validationService.IsUserExistsAsync(userId)))
             return null;

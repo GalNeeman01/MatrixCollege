@@ -40,7 +40,7 @@ public class CoursesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllCoursesAsync()
     {
-        List<CourseDto> courses = await _courseService.GetAllCoursesAsync();
+        List<CourseDto> courses = await _courseService.GetAllCoursesDtoAsync();
 
         return Ok(courses);
     }
@@ -48,7 +48,7 @@ public class CoursesController : ControllerBase
     [HttpGet("{courseId}")]
     public async Task<IActionResult> GetCourseByIdAsync([FromRoute] Guid courseId)
     {
-        CourseDto? course = await _courseService.GetCourseByIdAsync(courseId);
+        CourseDto? course = await _courseService.GetCourseDtoByIdAsync(courseId);
 
         if (course == null)
             return NotFound(new ResourceNotFoundError(courseId.ToString()));
@@ -59,7 +59,7 @@ public class CoursesController : ControllerBase
     [HttpGet("lesson/{lessonId}")]
     public async Task<IActionResult> GetCourseByLessonIdAsync([FromRoute] Guid lessonId)
     {
-        CourseDto? course = await _courseService.GetCourseByLessonIdAsync(lessonId);
+        CourseDto? course = await _courseService.GetCourseDtoByLessonIdAsync(lessonId);
 
         if (course == null)
             return NotFound(new ResourceNotFoundError(lessonId.ToString()));

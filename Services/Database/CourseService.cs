@@ -44,7 +44,7 @@ public class CourseService : ICourseService
         return result;
     }
 
-    public async Task<List<CourseDto>> GetAllCoursesAsync()
+    public async Task<List<CourseDto>> GetAllCoursesDtoAsync()
     {
         // Retrieve data from DB
         List<Course> dbCourses = await _courseDao.GetAllCoursesAsync();
@@ -61,7 +61,7 @@ public class CourseService : ICourseService
         return courses;
     }
 
-    public async Task<CourseDto?> GetCourseByIdAsync(Guid courseId)
+    public async Task<CourseDto?> GetCourseDtoByIdAsync(Guid courseId)
     {
         // Retreive course from DB
         Course? dbCourse = await _courseDao.GetCourseByIdAsync(courseId);
@@ -71,7 +71,7 @@ public class CourseService : ICourseService
         return _mapper.Map<CourseDto>(dbCourse);
     }
 
-    public async Task<CourseDto?> GetCourseByLessonIdAsync(Guid lessonId)
+    public async Task<CourseDto?> GetCourseDtoByLessonIdAsync(Guid lessonId)
     {
         Course? dbCourse = await _courseDao.GetCourseByLessonIdAsync(lessonId);
 

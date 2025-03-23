@@ -140,7 +140,7 @@ public class UsersController : ControllerBase
     [HttpGet("enrollments/{userId}")]
     public async Task<IActionResult> GetUserEnrollmentsAsync([FromRoute] Guid userId)
     {
-        List<EnrollmentDto>? dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserIdAsync(userId);
+        List<EnrollmentDto>? dtoEnrollments = await _enrollmentService.GetEnrollmentsDtoByUserIdAsync(userId);
 
         if (dtoEnrollments == null) // Will receive null from service if no user was found for given ID
             return NotFound(new ResourceNotFoundError(userId.ToString()));

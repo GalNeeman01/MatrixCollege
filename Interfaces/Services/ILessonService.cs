@@ -2,9 +2,9 @@
 
 public interface ILessonService
 {
-    public Task<List<LessonDto>> GetAllLessonsAsync();
+    public Task<List<LessonDto>> GetAllLessonsDtoAsync();
 
-    public Task<LessonDto?> GetLessonByIdAsync(Guid id);
+    public Task<LessonDto?> GetLessonDtoByIdAsync(Guid id);
 
     public Task<List<LessonDto>?> AddLessonsAsync(List<LessonDto> lessons);
 

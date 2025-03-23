@@ -52,7 +52,7 @@ public class LessonsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllLessonsAsync()
     {
-        List<LessonDto> lessons = await _lessonService.GetAllLessonsAsync();
+        List<LessonDto> lessons = await _lessonService.GetAllLessonsDtoAsync();
 
         return Ok(lessons);
     }
@@ -61,7 +61,7 @@ public class LessonsController : ControllerBase
     [HttpGet("{lessonId}")]
     public async Task<IActionResult> GetLessonByIdAsync([FromRoute] Guid lessonId)
     {
-        LessonDto? lesson = await _lessonService.GetLessonByIdAsync(lessonId);
+        LessonDto? lesson = await _lessonService.GetLessonDtoByIdAsync(lessonId);
 
         // If no lesson with given id exists in DB
         if (lesson == null)
