@@ -6,14 +6,14 @@ namespace Matrix;
 public class ProgressService : IProgressService
 {
     // DI's
-    private MatrixCollegeContext _db;
     private IMapper _mapper;
+    private IProgressDao _progressDao;
 
     // Constructor
-    public ProgressService(MatrixCollegeContext db, IMapper mapper)
+    public ProgressService(IMapper mapper, IProgressDao progressDao)
     {
-        _db = db;
         _mapper = mapper;
+        _progressDao = progressDao;
     }
 
     // Methods
@@ -22,7 +22,7 @@ public class ProgressService : IProgressService
         List<ProgressDto> dtoProgresses = new List<ProgressDto>();
 
         // Map to DTO objects
-        List<Progress> dbProgresses = await _db.Progresses.AsNoTracking().Where(progress => progress.UserId == userId).ToListAsync();
+        List<Progress> dbProgresses = await _progressDao.GetUserProgressAsync(userId);
         dbProgresses.ForEach(progress => dtoProgresses.Add(_mapper.Map<ProgressDto>(progress)));
 
         return dtoProgresses;
@@ -33,9 +33,7 @@ public class ProgressService : IProgressService
         DateTime now = DateTime.Now;
         progress.WatchedAt = now;
 
-        await _db.Progresses.AddAsync(progress);
-
-        await _db.SaveChangesAsync();
+        await _progressDao.AddProgressAsync(progress);
 
         // Map to DTO
         ProgressDto dto = _mapper.Map<ProgressDto>(progress);
@@ -48,9 +46,8 @@ public class ProgressService : IProgressService
         List<Progress> progressesToDelete = new List<Progress>();
 
         foreach (Lesson lesson in lessons)
-            progressesToDelete.AddRange(await _db.Progresses.Where(p => p.LessonId == lesson.Id).ToListAsync());
+            progressesToDelete.AddRange(await _progressDao.GetProgressesByLesson(lesson.Id));
 
-        _db.Progresses.RemoveRange(progressesToDelete);
-        await _db.SaveChangesAsync();
+        await _progressDao.RemoveProgressesAsync(progressesToDelete);
     }
 }

@@ -23,6 +23,8 @@ public static class Extensions
     {
         services.AddScoped<ICourseDao, CourseDao>();
         services.AddScoped<ILessonDao, LessonDao>();
+        services.AddScoped<IUserDao, UserDao>();
+        services.AddScoped<IProgressDao, ProgressDao>();
     }
 
     // Add CORS policies

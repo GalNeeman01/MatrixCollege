@@ -14,30 +14,35 @@ public enum RolesEnum
 public class UserService : IUserService
 {
     // DI's
-    private MatrixCollegeContext _db;
     private ITokenService _tokenService;
     private IMapper _mapper;
+    private IUserDao _userDao;
 
     // Constructor
-    public UserService (MatrixCollegeContext matrixCollegeContext, IMapper mapper, ITokenService tokenService)
+    public UserService (IMapper mapper, ITokenService tokenService,
+                        IUserDao userDao)
     {
-        _db = matrixCollegeContext;
         _mapper = mapper;
         _tokenService = tokenService;
+        _userDao = userDao;
     }
 
     // Methods
-    public async Task<string> RegisterAsync(User user)
+    public async Task<string?> RegisterAsync(CreateUserDto userDto)
     {
+        if (await _userDao.IsEmailExistsAsync(userDto.Email))
+            return null;
+
+        // Map to User object
+        User user = _mapper.Map<User>(userDto);
+
         user.Email = user.Email.ToLower(); // Format email
         user.Password = Encryptor.GetHashed(user.Password); // Convert to hashed
         user.RoleId = (user.RoleId == 2 || user.RoleId == 3) ? user.RoleId : (int)RolesEnum.Student;
 
-        await _db.Users.AddAsync(user);
+        await _userDao.AddUserAsync(user);
 
-        await _db.SaveChangesAsync();
-
-        user.Role = await _db.Roles.SingleAsync(role => role.Id == user.RoleId);
+        user.Role = await _userDao.GetUserRoleAsync(user);
 
         return _tokenService.GetNewToken(user);
     }
@@ -48,20 +53,20 @@ public class UserService : IUserService
         credentials.Password = Encryptor.GetHashed(credentials.Password); // Convert to hashed
 
         // Retrieve user from DB 
-        User? dbUser = await _db.Users.AsNoTracking().Include(u => u.Role).SingleOrDefaultAsync(user => user.Email == credentials.Email && user.Password == credentials.Password);
+        User? dbUser = await _userDao.GetUserAsync(credentials);
 
         if (dbUser == null) return null;
 
         return _tokenService.GetNewToken(dbUser);
     }
 
-    public bool IsUserExists(Guid id)
+    public async Task<bool> IsUserExistsAsync(Guid id)
     {
-        return _db.Users.AsNoTracking().Any(user => user.Id == id);
+        return await _userDao.IsUserExistsAsync(id);
     }
 
     public async Task<bool> IsEmailUniqueAsync (string email)
     {
-        return await _db.Users.AsNoTracking().AnyAsync(user => user.Email == email.ToLower()) == false;
+        return !(await _userDao.IsEmailExistsAsync(email)); // Unique = not exists 👍
     }
 }

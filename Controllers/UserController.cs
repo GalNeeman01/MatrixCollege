@@ -62,13 +62,11 @@ public class UsersController : ControllerBase
         if (!validationResult.IsValid)
             return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
 
-        if (!(await _userService.IsEmailUniqueAsync(userDto.Email)))
+        string? token = await _userService.RegisterAsync(userDto);
+
+        // Service will return null if the email already exists
+        if (token == null)
             return BadRequest(new ValidationError<string>("Email is already taken."));
-
-        // Map to User object
-        User user = _mapper.Map<User>(userDto);
-
-        string token = await _userService.RegisterAsync(user);
 
         // Return an object so Front-End can parse it as json
         return Created("/", token);
@@ -86,6 +84,7 @@ public class UsersController : ControllerBase
 
         string? token = await _userService.LoginAsync(credentials);
 
+        // Service will return null for incorrect credentials
         if (token == null)
             return BadRequest(new ValidationError<string>("Incorrect email or password."));
 
@@ -101,7 +100,7 @@ public class UsersController : ControllerBase
         if (progressDto == null)
             return BadRequest(new RequestDataError());
 
-        if (!_userService.IsUserExists(progressDto.UserId))
+        if (!(await _userService.IsUserExistsAsync(progressDto.UserId)))
             return BadRequest(new ResourceNotFoundError(progressDto.UserId.ToString()));
 
         if (!(await _lessonService.IsLessonExists(progressDto.LessonId)))
@@ -136,7 +135,7 @@ public class UsersController : ControllerBase
         if (await _courseService.IsCourseExistsAsync(enrollmentDto.CourseId) == false)
             return BadRequest(new ResourceNotFoundError(enrollmentDto.CourseId.ToString()));
 
-        if(!_userService.IsUserExists(enrollmentDto.UserId))
+        if(!(await _userService.IsUserExistsAsync(enrollmentDto.UserId)))
             return BadRequest(new ResourceNotFoundError(enrollmentDto.UserId.ToString()));
 
         // Fluent validation
@@ -158,7 +157,7 @@ public class UsersController : ControllerBase
     [HttpGet("enrollments/{userId}")]
     public async Task<IActionResult> GetUserEnrollmentsAsync([FromRoute] Guid userId)
     {
-        if (!_userService.IsUserExists(userId))
+        if (!(await _userService.IsUserExistsAsync(userId)))
             return NotFound(new ResourceNotFoundError(userId.ToString()));
 
         List<EnrollmentDto> dtoEnrollments = await _enrollmentService.GetEnrollmentsByUserIdAsync(userId);
