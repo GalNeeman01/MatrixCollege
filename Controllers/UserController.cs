@@ -15,28 +15,14 @@ public class UsersController : ControllerBase
     private IUserService _userService;
     private IEnrollmentService _enrollmentService;
     private IProgressService _progressService;
-
-    // Validators
-    private IValidator<CreateUserDto> _userValidator;
-    private IValidator<ProgressDto> _progressValidator;
-    private IValidator<EnrollmentDto> _enrollmentValidator;
-    private IValidator<Credentials> _credentialsValidator;
     
     // Constructor
     public UsersController(
         IUserService userService, 
         IEnrollmentService enrollmentService,
-        IProgressService progressService,
-        IValidator<CreateUserDto> userValidator, 
-        IValidator<ProgressDto> progressValidator, 
-        IValidator<EnrollmentDto> enrollmentValidator,
-        IValidator<Credentials> credentialsValidator)
+        IProgressService progressService)
     {
         _userService = userService;
-        _userValidator = userValidator;
-        _progressValidator = progressValidator;
-        _enrollmentValidator = enrollmentValidator;
-        _credentialsValidator = credentialsValidator;
         _enrollmentService = enrollmentService;
         _progressService = progressService;
     }

@@ -12,13 +12,11 @@ public class LessonsController : ControllerBase
 {
     // DI's
     private ILessonService _lessonService;
-    private IValidator<LessonDto> _validator;
 
     // Constructor
-    public LessonsController(ILessonService lessonService, IValidator<LessonDto> validator)
+    public LessonsController(ILessonService lessonService)
     {
         _lessonService = lessonService;
-        _validator = validator;
     }
 
     // Routes

@@ -11,13 +11,11 @@ public class CoursesController : ControllerBase
 {
     // DI's
     private ICourseService _courseService;
-    private IValidator<CourseDto> _validator;
 
     // Constructor
-    public CoursesController(ICourseService courseService, IValidator<CourseDto> validator)
+    public CoursesController(ICourseService courseService)
     {
         _courseService = courseService;
-        _validator = validator;
     }
 
     // Routes
