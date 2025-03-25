@@ -51,7 +51,10 @@ public class Program
         builder.Services.AddCorsPolicies();
 
         // Add global filters
-        builder.Services.AddMvc(options => options.Filters.Add<CatchAllFilter>());
+        builder.Services.AddMvc(options => {
+            options.Filters.Add<CatchAllFilter>();
+            options.Filters.Add<AutoValidationFilter>();
+        });
 
         // Ignore EF ModelState input validation (To allow Fluent to work)
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -78,6 +81,7 @@ public class Program
         app.UseSerilogRequestLogging();
         app.UseAuthorization();
         app.MapControllers();
+        app.UseNullOrEmptyJsonMiddleware();
 
         app.Run();
     }

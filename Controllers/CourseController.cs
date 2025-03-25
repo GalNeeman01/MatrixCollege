@@ -25,12 +25,6 @@ public class CoursesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCourseAsync([FromBody] CourseDto courseDto)
     {
-        // Fluent validation
-        ValidationResult validationResult = _validator.Validate(courseDto);
-
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
         // Retreive created courseDto
         CourseDto createdCourse = await _courseService.CreateCourseAsync(courseDto);
 
@@ -83,15 +77,6 @@ public class CoursesController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateCourseAsync([FromBody] CourseDto courseDto)
     {
-        // Fluent validation on DTO:
-        if (courseDto == null)
-            return BadRequest(new RequestDataError());
-
-        ValidationResult validationResult = _validator.Validate(courseDto);
-
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
         CourseDto? result = await _courseService.UpdateCourseAsync(courseDto);
 
         if (result == null)

@@ -44,4 +44,10 @@ public static class Extensions
                 });
         });
     }
+
+    // App Middleware
+    public static void UseNullOrEmptyJsonMiddleware(this IApplicationBuilder builder)
+    {
+        builder.UseMiddleware<NullOrEmptyJsonMiddleware>();
+    }
 }

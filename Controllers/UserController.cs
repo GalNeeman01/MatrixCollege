@@ -45,12 +45,6 @@ public class UsersController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] CreateUserDto userDto)
     {
-        // Fluent validation
-        ValidationResult validationResult = _userValidator.Validate(userDto);
-
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
         string? token = await _userService.RegisterAsync(userDto);
 
         // Service will return null if the email already exists
@@ -64,12 +58,6 @@ public class UsersController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] Credentials credentials)
     {
-        // Fluent validation
-        ValidationResult validationResult = _credentialsValidator.Validate(credentials);
-
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
         string? token = await _userService.LoginAsync(credentials);
 
         // Service will return null for incorrect credentials
@@ -85,14 +73,6 @@ public class UsersController : ControllerBase
     [HttpPost("progress")]
     public async Task<IActionResult> AddProgressAsync([FromBody] ProgressDto progressDto)
     {
-        if (progressDto == null)
-            return BadRequest(new RequestDataError());
-
-        ValidationResult validationResult = _progressValidator.Validate(progressDto);
-
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-
         ProgressDto? resultProgress = await _progressService.AddProgressAsync(progressDto);
 
         if (resultProgress == null)
@@ -117,16 +97,6 @@ public class UsersController : ControllerBase
     [HttpPost("enrollments")]
     public async Task<IActionResult> AddEnrollmentAsync([FromBody] EnrollmentDto enrollmentDto)
     {
-        // In case of invalid Guid from request which would cause a crash
-        if (enrollmentDto == null)
-            return BadRequest(new RequestDataError());
-
-        // Fluent validation
-        ValidationResult validationResult = _enrollmentValidator.Validate(enrollmentDto);
-
-        if (!validationResult.IsValid)
-            return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-        
         // Call service
         EnrollmentDto? resultEnrollment = await _enrollmentService.EnrollAsync(enrollmentDto);
 

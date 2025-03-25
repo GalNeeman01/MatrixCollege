@@ -47,6 +47,9 @@ public class LessonService : ILessonService
 
     public async Task<List<LessonDto>?> AddLessonsAsync(List<LessonDto> lessonDtos)
     {
+        // Fail for empty lists
+        if (lessonDtos.Count == 0) return null;
+
         // Convert to Lesson objects
         List<Lesson> lessons = new List<Lesson>();
 
@@ -138,6 +141,8 @@ public class LessonService : ILessonService
 
     public async Task<List<LessonDto>?> UpdateLessonsAsync(List<LessonDto> lessonDtos)
     {
+        if (lessonDtos.Count == 0) return null;
+
         // Map to Lesson objects
         List<Lesson> lessons = new List<Lesson>();
 

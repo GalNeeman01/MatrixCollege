@@ -26,19 +26,6 @@ public class LessonsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddLessonsAsync([FromBody] List<LessonDto> lessonDtos)
     {
-        // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
-        if (lessonDtos == null || lessonDtos.Count == 0) // No data recieved
-            return BadRequest(new RequestDataError());
-
-        // Validate each item to add
-        foreach (LessonDto lessonDto in lessonDtos)
-        {
-            ValidationResult validationResult = _validator.Validate(lessonDto);
-
-            if (!validationResult.IsValid)
-                return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-        }
-
         // If all lessons are validated, call DB to add them
         List<LessonDto>? result = await _lessonService.AddLessonsAsync(lessonDtos);
 
@@ -97,9 +84,6 @@ public class LessonsController : ControllerBase
     [HttpPost("delete")] // Must be post to accept a list of items
     public async Task<IActionResult> RemoveLessonsAsync([FromBody] List<Guid> lessonIds)
     {
-        if (lessonIds == null || lessonIds.Count() == 0) // No data recieved
-            return BadRequest(new RequestDataError());
-
         bool result = await _lessonService.RemoveLessonsAsync(lessonIds);
 
         if (!result)
@@ -112,19 +96,6 @@ public class LessonsController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateLessonsAsync([FromBody] List<LessonDto> lessonDtos)
     {
-        // Fluent validation on DTO:
-        // Make sure lesson was created successfully since if it receives an empty Guid it will fail to create and result in null
-        if (lessonDtos == null || lessonDtos.Count == 0)
-            return BadRequest(new RequestDataError());
-
-        foreach (LessonDto lessonDto in lessonDtos)
-        {
-            ValidationResult validationResult = _validator.Validate(lessonDto);
-
-            if (!validationResult.IsValid)
-                return BadRequest(new ValidationError<List<string>>(validationResult.Errors.Select(e => e.ErrorMessage).ToList()));
-        }
-
         // Call to service after each lesson was validated
         List<LessonDto>? resultLessonsDto = await _lessonService.UpdateLessonsAsync(lessonDtos);
 
